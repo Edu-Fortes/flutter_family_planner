@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../auth/data/auth_repository.dart';
+import '../../profile/data/profile_repository.dart';
+import '../../invitation/presentation/invitation_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -11,6 +13,7 @@ class DashboardScreen extends ConsumerWidget {
     // We can get the user safely because the Router protects this screen
     final user = Supabase.instance.client.auth.currentUser;
     final isGuest = user == null; // Should never happen due to router
+    final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -39,12 +42,28 @@ class DashboardScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
             const SizedBox(height: 32),
-            FilledButton.icon(
-              onPressed: () {
-                // We will build the "Invite Member" UI here next
+
+            profileAsync.when(
+              data: (profile) {
+                if (profile?.role == 'admin') {
+                  return FilledButton.icon(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const InvitationScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.person_add),
+                    label: const Text('Invite Family Member'),
+                  );
+                } else {
+                  return const Text('Family Member View (No Admin Rights)');
+                }
               },
-              icon: const Icon(Icons.person_add),
-              label: const Text('Invite Family Member'),
+              loading: () => const CircularProgressIndicator(),
+              error: (err, stack) => const Text('Could not load profile'),
             ),
           ],
         ),
