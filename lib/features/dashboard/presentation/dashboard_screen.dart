@@ -1,3 +1,4 @@
+import 'package:family_planner/features/calendar/presentation/calendar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -41,6 +42,22 @@ class DashboardScreen extends ConsumerWidget {
               'Logged in as: ${isGuest ? "Guest" : user.email}',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
+
+            // This button is visible to EVERYONE (Admin and Members)
+            SizedBox(
+              width: 250, // Fixed width for better look
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CalendarScreen()),
+                  );
+                },
+                icon: const Icon(Icons.calendar_month),
+                label: const Text('Open Calendar'),
+              ),
+            ),
+
             const SizedBox(height: 32),
 
             profileAsync.when(
