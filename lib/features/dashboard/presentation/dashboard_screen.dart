@@ -1,4 +1,5 @@
 import 'package:family_planner/features/calendar/presentation/calendar_screen.dart';
+import 'package:family_planner/features/grocery/presentation/grocery_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -74,6 +75,24 @@ class DashboardScreen extends ConsumerWidget {
                 label: const Text('Manage Family'),
               ),
             ),
+
+            const SizedBox(height: 12),
+
+            // Button to open Grocery Screen
+            SizedBox(
+              width: 250,
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const GroceryScreen()),
+                  );
+                },
+                icon: const Icon(Icons.shopping_cart),
+                label: const Text('Grocery List'),
+              ),
+            ),
+
             const SizedBox(height: 12),
             profileAsync.when(
               data: (profile) {
