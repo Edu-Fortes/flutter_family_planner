@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'edit_member_dialog.dart';
 import '../../profile/data/profile_repository.dart';
 import '../data/member_repository.dart';
 
@@ -18,8 +19,9 @@ class MemberScreen extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
         data: (members) {
-          if (members.isEmpty)
+          if (members.isEmpty) {
             return const Center(child: Text('No members found.'));
+          }
 
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -27,6 +29,11 @@ class MemberScreen extends ConsumerWidget {
             separatorBuilder: (_, __) => const Divider(),
             itemBuilder: (context, index) {
               final member = members[index];
+
+              // Helper to check if current user is admin
+              // (We can get this from profileAsync.value or check locally)
+              final isCurrentUserAdmin = profileAsync.value?.role == 'admin';
+
               return ListTile(
                 leading: CircleAvatar(
                   backgroundColor: Color(member.colorValue),
@@ -50,9 +57,17 @@ class MemberScreen extends ConsumerWidget {
                     color: member.isChild ? Colors.orange : Colors.grey,
                   ),
                 ),
-                trailing: member.isChild
-                    ? const Icon(Icons.child_care, color: Colors.orange)
-                    : const Icon(Icons.verified_user, color: Colors.blue),
+                trailing: const Icon(Icons.edit, size: 16, color: Colors.grey),
+                // Open Edit Dialog
+                onTap: () {
+                  showDialog(
+                    context: context,
+                    builder: (_) => EditMemberDialog(
+                      member: member,
+                      isAdmin: isCurrentUserAdmin,
+                    ),
+                  );
+                },
               );
             },
           );

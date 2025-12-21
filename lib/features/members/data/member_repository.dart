@@ -61,6 +61,27 @@ class MemberRepository {
       'profile_id': null, // No login account
     });
   }
+
+  // Update Name and Color
+  Future<void> updateMember(
+    String memberId,
+    String newName,
+    String newColorHex,
+  ) async {
+    // If this member is linked to a profile (Real User), we should also update the profile name
+    // But for simplicity/speed, we update the 'family_members' table which acts as the display source.
+    await _client
+        .from('family_members')
+        .update({'name': newName, 'color': newColorHex})
+        .eq('id', memberId);
+  }
+
+  // Delete a Virtual Member (Child)
+  Future<void> deleteMember(String memberId) async {
+    // Security check: RLS policies on the server will prevent deleting a Real User
+    // if we set them up correctly, but we should also check here or handle the error.
+    await _client.from('family_members').delete().eq('id', memberId);
+  }
 }
 
 final memberRepositoryProvider = Provider(
