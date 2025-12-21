@@ -60,6 +60,24 @@ class CalendarRepository {
 
     await _client.from('family_events').insert(data);
   }
+
+  Future<void> updateEvent(FamilyEvent event) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Must be logged in');
+
+    // Reuse toJson but make sure ID is not part of the body if Supabase complains,
+    // though usually .match handles the ID selection.
+    final data = event.toJson();
+
+    await _client.from('family_events').update(data).eq('id', event.id);
+  }
+
+  Future<void> deleteEvent(String eventId) async {
+    final user = _client.auth.currentUser;
+    if (user == null) throw Exception('Must be logged in');
+
+    await _client.from('family_events').delete().eq('id', eventId);
+  }
 }
 
 final calendarRepositoryProvider = Provider(

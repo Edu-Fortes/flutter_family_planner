@@ -74,7 +74,7 @@ class DashboardScreen extends ConsumerWidget {
                 label: const Text('Manage Family'),
               ),
             ),
-
+            const SizedBox(height: 12),
             profileAsync.when(
               data: (profile) {
                 if (profile?.role == 'admin') {

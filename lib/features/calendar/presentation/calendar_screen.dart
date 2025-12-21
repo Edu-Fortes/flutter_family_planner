@@ -42,6 +42,28 @@ class CalendarScreen extends ConsumerWidget {
                   appointmentDisplayMode:
                       MonthAppointmentDisplayMode.appointment,
                 ),
+                allowedViews: const [
+                  CalendarView.day,
+                  CalendarView.week,
+                  CalendarView.month,
+                ],
+                // --- On tap to EDIT event ---
+                onTap: (CalendarTapDetails details) {
+                  // FIX: specific check for 'CalendarElement.appointment'
+                  // This ensures we only edit if the user touched the colored bubble.
+                  if (details.targetElement == CalendarElement.appointment &&
+                      details.appointments != null &&
+                      details.appointments!.isNotEmpty) {
+                    // Get the specific event that was tapped
+                    final clickedEvent =
+                        details.appointments!.first as FamilyEvent;
+
+                    showDialog(
+                      context: context,
+                      builder: (_) => AddEventDialog(eventToEdit: clickedEvent),
+                    );
+                  }
+                },
               );
             },
           );
