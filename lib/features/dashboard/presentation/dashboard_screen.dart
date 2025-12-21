@@ -1,9 +1,11 @@
+import 'package:family_planner/features/calendar/presentation/calendar_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../invitation/presentation/invitation_screen.dart';
+import '../../members/presentation/member_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -41,8 +43,38 @@ class DashboardScreen extends ConsumerWidget {
               'Logged in as: ${isGuest ? "Guest" : user.email}',
               style: Theme.of(context).textTheme.bodyLarge,
             ),
-            const SizedBox(height: 32),
 
+            // Open Calendar button
+            SizedBox(
+              width: 250, // Fixed width for better look
+              child: FilledButton.tonalIcon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const CalendarScreen()),
+                  );
+                },
+                icon: const Icon(Icons.calendar_month),
+                label: const Text('Open Calendar'),
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Button to manage family members
+            SizedBox(
+              width: 250,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MemberScreen()),
+                  );
+                },
+                icon: const Icon(Icons.people),
+                label: const Text('Manage Family'),
+              ),
+            ),
+            const SizedBox(height: 12),
             profileAsync.when(
               data: (profile) {
                 if (profile?.role == 'admin') {
