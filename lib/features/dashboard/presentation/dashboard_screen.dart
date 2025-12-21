@@ -5,6 +5,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import '../../auth/data/auth_repository.dart';
 import '../../profile/data/profile_repository.dart';
 import '../../invitation/presentation/invitation_screen.dart';
+import '../../members/presentation/member_screen.dart';
 
 class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
@@ -43,7 +44,7 @@ class DashboardScreen extends ConsumerWidget {
               style: Theme.of(context).textTheme.bodyLarge,
             ),
 
-            // This button is visible to EVERYONE (Admin and Members)
+            // Open Calendar button
             SizedBox(
               width: 250, // Fixed width for better look
               child: FilledButton.tonalIcon(
@@ -57,8 +58,22 @@ class DashboardScreen extends ConsumerWidget {
                 label: const Text('Open Calendar'),
               ),
             ),
+            const SizedBox(height: 12),
 
-            const SizedBox(height: 32),
+            // Button to manage family members
+            SizedBox(
+              width: 250,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MemberScreen()),
+                  );
+                },
+                icon: const Icon(Icons.people),
+                label: const Text('Manage Family'),
+              ),
+            ),
 
             profileAsync.when(
               data: (profile) {
