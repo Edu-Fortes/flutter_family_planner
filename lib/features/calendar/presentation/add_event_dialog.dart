@@ -49,6 +49,11 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     final membersAsync = ref.watch(membersStreamProvider);
     final isEditing = widget.eventToEdit != null;
 
+    // Define formats based on the toggle
+    final dateFormat = DateFormat('dd MMM yyyy');
+    final dateTimeFormat = DateFormat('dd MMM, h:mm a');
+    final displayFormat = _isAllDay ? dateFormat : dateTimeFormat;
+
     return AlertDialog(
       title: Text(isEditing ? 'Edit Event' : 'Add Family Event'),
       content: SingleChildScrollView(
@@ -98,16 +103,21 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
               const SizedBox(height: 16),
 
               ListTile(
-                title: Text(
-                  "Start: ${DateFormat('MMM d, h:mm a').format(_startDate)}",
-                ),
+                title: Text("Start: ${displayFormat.format(_startDate)}"),
+                trailing: const Icon(Icons.calendar_today, size: 16),
                 onTap: () => _pickDate(true),
               ),
               ListTile(
-                title: Text(
-                  "End: ${DateFormat('MMM d, h:mm a').format(_endDate)}",
-                ),
+                title: Text("End: ${displayFormat.format(_endDate)}"),
+                trailing: const Icon(Icons.calendar_today, size: 16),
                 onTap: () => _pickDate(false),
+              ),
+
+              SwitchListTile(
+                title: const Text('All Day Event'),
+                value: _isAllDay,
+                onChanged: (val) => setState(() => _isAllDay = val),
+                contentPadding: EdgeInsets.zero,
               ),
             ],
           ),
@@ -136,34 +146,58 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
   }
 
   Future<void> _pickDate(bool isStart) async {
-    final picked = await showDatePicker(
+    // 1. Pick the Date
+    final pickedDate = await showDatePicker(
       context: context,
       initialDate: isStart ? _startDate : _endDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
-    if (picked != null) {
-      // Logic to keep time could go here, simplified for now
-      final time = await showTimePicker(
-        context: context,
-        initialTime: TimeOfDay.fromDateTime(isStart ? _startDate : _endDate),
-      );
 
-      if (time != null) {
+    if (pickedDate != null) {
+      // 2. If it is All Day, we STOP here (no time picker)
+      if (_isAllDay) {
         setState(() {
+          // Keep the date, but set time to 00:00 (Start) or 23:59 (End) conceptually,
+          // though for AllDay events the time component is largely ignored by the calendar.
+          // We just preserve the current hour/min to avoid null errors, or set to default.
           final newDate = DateTime(
-            picked.year,
-            picked.month,
-            picked.day,
-            time.hour,
-            time.minute,
+            pickedDate.year,
+            pickedDate.month,
+            pickedDate.day,
+            isStart ? _startDate.hour : _endDate.hour,
+            isStart ? _startDate.minute : _endDate.minute,
           );
+
           if (isStart) {
             _startDate = newDate;
           } else {
             _endDate = newDate;
           }
         });
+      } else {
+        // 3. If NOT All Day, we proceed to Pick the Time
+        final pickedTime = await showTimePicker(
+          context: context,
+          initialTime: TimeOfDay.fromDateTime(isStart ? _startDate : _endDate),
+        );
+
+        if (pickedTime != null) {
+          setState(() {
+            final newDate = DateTime(
+              pickedDate.year,
+              pickedDate.month,
+              pickedDate.day,
+              pickedTime.hour,
+              pickedTime.minute,
+            );
+            if (isStart) {
+              _startDate = newDate;
+            } else {
+              _endDate = newDate;
+            }
+          });
+        }
       }
     }
   }

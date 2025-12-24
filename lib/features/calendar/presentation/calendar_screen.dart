@@ -101,6 +101,11 @@ class _FamilyDataSource extends CalendarDataSource {
   }
 
   @override
+  bool isAllDay(int index) {
+    return (appointments![index] as FamilyEvent).isAllDay;
+  }
+
+  @override
   Color getColor(int index) {
     final event = appointments![index] as FamilyEvent;
 
