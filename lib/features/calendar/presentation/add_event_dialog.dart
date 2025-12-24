@@ -70,7 +70,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
                     _selectedMemberId = members.first.id;
                   }
                   return DropdownButtonFormField<String>(
-                    value: _selectedMemberId,
+                    initialValue: _selectedMemberId,
                     decoration: const InputDecoration(labelText: 'Assign To'),
                     items: members
                         .map(
@@ -158,10 +158,11 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
             time.hour,
             time.minute,
           );
-          if (isStart)
+          if (isStart) {
             _startDate = newDate;
-          else
+          } else {
             _endDate = newDate;
+          }
         });
       }
     }
