@@ -69,19 +69,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   destinations: const [
                     NavigationRailDestination(
                       icon: Icon(Icons.home),
-                      label: Text('Home'),
+                      label: Text('Início'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.calendar_month),
-                      label: Text('Calendar'),
+                      label: Text('Calendário'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.shopping_cart),
-                      label: Text('Grocery'),
+                      label: Text('Mercado'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.people),
-                      label: Text('Family'),
+                      label: Text('Família'),
                     ),
                   ],
                 ),
@@ -117,15 +117,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.home),
-                    label: 'Home',
+                    label: 'Início',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.calendar_month),
-                    label: 'Calendar',
+                    label: 'Calendário',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.shopping_cart),
-                    label: 'Grocery',
+                    label: 'Mercado',
                   ),
                 ],
               ),
