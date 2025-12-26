@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:syncfusion_localizations/syncfusion_localizations.dart';
 import 'features/dashboard/presentation/dashboard_screen.dart';
 
 // Import your features here
@@ -36,6 +38,18 @@ class FamilyPlannerApp extends ConsumerWidget {
     return MaterialApp.router(
       title: 'Family Planner',
       debugShowCheckedModeBanner: false,
+
+      // Localization Support
+      localizationsDelegates: const [
+        GlobalMaterialLocalizations.delegate,
+        GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
+        SfGlobalLocalizations.delegate, // Essential for Syncfusion
+      ],
+      supportedLocales: const [
+        Locale('pt', 'BR'), // Portuguese, Brazil
+      ],
+      locale: const Locale('pt', 'BR'),
 
       // Theme Configuration (Material 3 & Centralized Theme Rule)
       theme: ThemeData(
