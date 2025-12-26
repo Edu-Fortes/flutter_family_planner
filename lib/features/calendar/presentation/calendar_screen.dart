@@ -35,6 +35,7 @@ class CalendarScreen extends ConsumerWidget {
             data: (members) {
               // 3. Create the DataSource with BOTH lists
               return SfCalendar(
+                timeSlotViewSettings: TimeSlotViewSettings(timeFormat: 'HH:mm'),
                 view: CalendarView.month,
                 showTodayButton: true,
                 showNavigationArrow: true,
