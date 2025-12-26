@@ -51,11 +51,11 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
 
     // Define formats based on the toggle
     final dateFormat = DateFormat('dd MMM yyyy');
-    final dateTimeFormat = DateFormat('dd MMM, h:mm a');
+    final dateTimeFormat = DateFormat('dd MMM, HH:mm');
     final displayFormat = _isAllDay ? dateFormat : dateTimeFormat;
 
     return AlertDialog(
-      title: Text(isEditing ? 'Edit Event' : 'Add Family Event'),
+      title: Text(isEditing ? 'Editar Evento' : 'Adicionar Evento'),
       content: SingleChildScrollView(
         child: Form(
           key: _formKey,
@@ -64,8 +64,8 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
             children: [
               TextFormField(
                 controller: _titleController,
-                decoration: const InputDecoration(labelText: 'Title'),
-                validator: (val) => val!.isEmpty ? 'Required' : null,
+                decoration: const InputDecoration(labelText: 'Título'),
+                validator: (val) => val!.isEmpty ? 'Obrigatório' : null,
               ),
               const SizedBox(height: 16),
 
@@ -76,7 +76,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
                   }
                   return DropdownButtonFormField<String>(
                     initialValue: _selectedMemberId,
-                    decoration: const InputDecoration(labelText: 'Assign To'),
+                    decoration: const InputDecoration(labelText: 'Atribuir a'),
                     items: members
                         .map(
                           (m) => DropdownMenuItem(
@@ -98,23 +98,23 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
                   );
                 },
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('Error loading members'),
+                error: (_, __) => const Text('Erro ao carregar membros'),
               ),
               const SizedBox(height: 16),
 
               ListTile(
-                title: Text("Start: ${displayFormat.format(_startDate)}"),
+                title: Text("Início: ${displayFormat.format(_startDate)}"),
                 trailing: const Icon(Icons.calendar_today, size: 16),
                 onTap: () => _pickDate(true),
               ),
               ListTile(
-                title: Text("End: ${displayFormat.format(_endDate)}"),
+                title: Text("Fim: ${displayFormat.format(_endDate)}"),
                 trailing: const Icon(Icons.calendar_today, size: 16),
                 onTap: () => _pickDate(false),
               ),
 
               SwitchListTile(
-                title: const Text('All Day Event'),
+                title: const Text('Dia Inteiro'),
                 value: _isAllDay,
                 onChanged: (val) => setState(() => _isAllDay = val),
                 contentPadding: EdgeInsets.zero,
@@ -129,17 +129,17 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: _delete,
-            child: const Text('Delete'),
+            child: const Text('Excluir'),
           ),
 
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancelar'),
         ),
 
         ElevatedButton(
           onPressed: _save,
-          child: Text(isEditing ? 'Update' : 'Save'),
+          child: Text(isEditing ? 'Atualizar' : 'Salvar'),
         ),
       ],
     );
@@ -229,16 +229,16 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Event?'),
-        content: const Text('This cannot be undone.'),
+        title: const Text('Excluir evento?'),
+        content: const Text('Esta ação não pode ser desfeita.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('No'),
+            child: const Text('Não'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Yes'),
+            child: const Text('Sim'),
           ),
         ],
       ),
