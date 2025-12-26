@@ -11,11 +11,11 @@ class InvitationScreen extends ConsumerWidget {
     final invitationsAsync = ref.watch(invitationsStreamProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Manage Invitations')),
+      appBar: AppBar(title: const Text('Gerenciar Convites')),
       body: invitationsAsync.when(
         data: (invitations) {
           if (invitations.isEmpty) {
-            return const Center(child: Text('No invitations created yet.'));
+            return const Center(child: Text('Nenhum convite criado ainda.'));
           }
           return ListView.separated(
             padding: const EdgeInsets.all(16),
@@ -33,7 +33,7 @@ class InvitationScreen extends ConsumerWidget {
                   ),
                 ),
                 subtitle: Text(
-                  invite.isUsed ? 'Status: USED' : 'Status: ACTIVE',
+                  invite.isUsed ? 'Status: USADO' : 'Status: ATIVO',
                   style: TextStyle(
                     color: invite.isUsed ? Colors.red : Colors.green,
                   ),
@@ -47,7 +47,7 @@ class InvitationScreen extends ConsumerWidget {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Code ${invite.code} ready to share!',
+                                'Código ${invite.code} pronto para compartilhar!',
                               ),
                             ),
                           );
@@ -62,7 +62,7 @@ class InvitationScreen extends ConsumerWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text('New Code'),
+        label: const Text('Novo Código'),
         onPressed: () => _showAddDialog(context, ref),
       ),
     );
@@ -71,24 +71,24 @@ class InvitationScreen extends ConsumerWidget {
   void _showAddDialog(BuildContext context, WidgetRef ref) {
     // Generate a random 4-digit suffix
     final random = Random().nextInt(9000) + 1000;
-    final suggestedCode = 'FAMILY-$random';
+    final suggestedCode = 'FAMILIA-$random';
     final controller = TextEditingController(text: suggestedCode);
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Create Invitation'),
+        title: const Text('Criar Convite'),
         content: TextField(
           controller: controller,
           decoration: const InputDecoration(
-            labelText: 'Invitation Code',
+            labelText: 'Código do Convite',
             border: OutlineInputBorder(),
           ),
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           ElevatedButton(
             onPressed: () async {
@@ -103,7 +103,7 @@ class InvitationScreen extends ConsumerWidget {
                 ).showSnackBar(SnackBar(content: Text('Error: $e')));
               }
             },
-            child: const Text('Create'),
+            child: const Text('Criar'),
           ),
         ],
       ),
