@@ -34,7 +34,7 @@ class _EditMemberDialogState extends ConsumerState<EditMemberDialog> {
     final canDelete = widget.isAdmin && widget.member.isChild;
 
     return AlertDialog(
-      title: const Text('Edit Member'),
+      title: const Text('Editar Membro'),
       content: SingleChildScrollView(
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -42,12 +42,12 @@ class _EditMemberDialogState extends ConsumerState<EditMemberDialog> {
             TextField(
               controller: _nameController,
               decoration: const InputDecoration(
-                labelText: 'Name',
+                labelText: 'Nome',
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            const Text('Member Color:'),
+            const Text('Cor do Membro:'),
             const SizedBox(height: 8),
             BlockPicker(
               pickerColor: _selectedColor,
@@ -79,13 +79,16 @@ class _EditMemberDialogState extends ConsumerState<EditMemberDialog> {
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: _delete,
-            child: const Text('Delete Member'),
+            child: const Text('Excluir Membro'),
           ),
         TextButton(
           onPressed: () => Navigator.pop(context),
-          child: const Text('Cancel'),
+          child: const Text('Cancelar'),
         ),
-        ElevatedButton(onPressed: _save, child: const Text('Save Changes')),
+        ElevatedButton(
+          onPressed: _save,
+          child: const Text('Salvar Alterações'),
+        ),
       ],
     );
   }
@@ -109,18 +112,18 @@ class _EditMemberDialogState extends ConsumerState<EditMemberDialog> {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Delete Member?'),
+        title: const Text('Excluir Membro?'),
         content: Text(
-          'Delete ${widget.member.name}? This will remove them from all assigned events.',
+          'Excluir ${widget.member.name}? Isso os removerá de todos os eventos atribuídos.',
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('No'),
+            child: const Text('Não'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Yes'),
+            child: const Text('Sim'),
           ),
         ],
       ),

@@ -14,13 +14,13 @@ class MemberScreen extends ConsumerWidget {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Family Members')),
+      appBar: AppBar(title: const Text('Membros da Família')),
       body: membersAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (err, _) => Center(child: Text('Error: $err')),
         data: (members) {
           if (members.isEmpty) {
-            return const Center(child: Text('No members found.'));
+            return const Center(child: Text('Nenhum membro encontrado.'));
           }
 
           return ListView.separated(
@@ -51,8 +51,8 @@ class MemberScreen extends ConsumerWidget {
                 ),
                 subtitle: Text(
                   member.isChild
-                      ? 'Child (Virtual Account)'
-                      : 'Full Member (App User)',
+                      ? 'Criança (Conta Virtual)'
+                      : 'Membro Completo (Usuário do App)',
                   style: TextStyle(
                     color: member.isChild ? Colors.orange : Colors.grey,
                   ),
@@ -79,7 +79,7 @@ class MemberScreen extends ConsumerWidget {
             ? FloatingActionButton.extended(
                 onPressed: () => _showAddMemberDialog(context, ref),
                 icon: const Icon(Icons.add),
-                label: const Text('Add Child'),
+                label: const Text('Adicionar Membro'),
               )
             : null,
         loading: () => null,
@@ -97,29 +97,29 @@ class MemberScreen extends ConsumerWidget {
       builder: (dialogContext) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Add Family Member'),
+            title: const Text('Adicionar Membro da Família'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Text(
-                    'Create a profile for a child or family member who does not have an email account.',
+                    'Crie um perfil para uma criança ou membro da família que não possui uma conta de email.',
                     style: TextStyle(fontSize: 12, color: Colors.grey),
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
-                      labelText: 'Name',
-                      hintText: 'e.g., Junior',
+                      labelText: 'Nome',
+                      hintText: 'ex.: Junior',
                       border: OutlineInputBorder(),
                       prefixIcon: Icon(Icons.person_outline),
                     ),
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Assign Color:',
+                    'Atribuir Cor:',
                     style: TextStyle(fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 8),
@@ -151,7 +151,7 @@ class MemberScreen extends ConsumerWidget {
             actions: [
               TextButton(
                 onPressed: () => Navigator.pop(context),
-                child: const Text('Cancel'),
+                child: const Text('Cancelar'),
               ),
               ElevatedButton(
                 onPressed: () async {
@@ -169,7 +169,7 @@ class MemberScreen extends ConsumerWidget {
 
                   if (context.mounted) Navigator.pop(context);
                 },
-                child: const Text('Add Member'),
+                child: const Text('Adicionar Membro'),
               ),
             ],
           );

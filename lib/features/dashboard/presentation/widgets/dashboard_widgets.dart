@@ -32,9 +32,12 @@ class _BigClockWidgetState extends State<BigClockWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final timeStr = DateFormat('h:mm').format(_now); // e.g., 9:41
-    final amPm = DateFormat('a').format(_now); // AM/PM
-    final dateStr = DateFormat('EEEE, MMMM d').format(_now); // Monday, Dec 21
+    final timeStr = DateFormat('HH:mm').format(_now); // e.g., 19:41
+    // final amPm = DateFormat('a').format(_now); // AM/PM
+    final dateStr = DateFormat(
+      'EEEE, d \'de\' MMMM \'de\' yyyy',
+      'pt_BR',
+    ).format(_now); // Monday, Dec 21
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -53,10 +56,6 @@ class _BigClockWidgetState extends State<BigClockWidget> {
               ),
             ),
             const SizedBox(width: 10),
-            Text(
-              amPm,
-              style: const TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            ),
           ],
         ),
         Text(

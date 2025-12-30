@@ -69,19 +69,19 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   destinations: const [
                     NavigationRailDestination(
                       icon: Icon(Icons.home),
-                      label: Text('Home'),
+                      label: Text('Início'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.calendar_month),
-                      label: Text('Calendar'),
+                      label: Text('Calendário'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.shopping_cart),
-                      label: Text('Grocery'),
+                      label: Text('Mercado'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.people),
-                      label: Text('Family'),
+                      label: Text('Família'),
                     ),
                   ],
                 ),
@@ -117,15 +117,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 items: const [
                   BottomNavigationBarItem(
                     icon: Icon(Icons.home),
-                    label: 'Home',
+                    label: 'Início',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.calendar_month),
-                    label: 'Calendar',
+                    label: 'Calendário',
                   ),
                   BottomNavigationBarItem(
                     icon: Icon(Icons.shopping_cart),
-                    label: 'Grocery',
+                    label: 'Mercado',
                   ),
                 ],
               ),
@@ -167,7 +167,7 @@ class _HomeView extends ConsumerWidget {
 
               // 3. Welcome Text
               Text(
-                'Welcome, ${user?.email}',
+                'Bem-vindo, ${user?.email}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 20),
@@ -186,7 +186,7 @@ class _HomeView extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(Icons.person_add),
-                      label: const Text('Generate Invite Code'),
+                      label: const Text('Gerenciar Convites'),
                     );
                   }
                   return const SizedBox.shrink();
@@ -212,7 +212,7 @@ class _MobileMenuScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Planner'),
+        title: const Text('Planejamento Familiar'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -240,7 +240,7 @@ class _MobileMenuScreen extends ConsumerWidget {
                   );
                 },
                 icon: const Icon(Icons.people),
-                label: const Text('Manage Family'),
+                label: const Text('Gerenciar Família'),
               ),
             ),
 
@@ -262,7 +262,7 @@ class _MobileMenuScreen extends ConsumerWidget {
                         );
                       },
                       icon: const Icon(Icons.vpn_key),
-                      label: const Text('Invite Codes'),
+                      label: const Text('Gerenciar Convites'),
                     ),
                   );
                 }

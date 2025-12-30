@@ -11,12 +11,12 @@ class GroceryScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping List'),
+        title: const Text('Lista de Compras'),
         actions: [
           // Clear Completed Button
           IconButton(
             icon: const Icon(Icons.delete_sweep),
-            tooltip: 'Clear Completed',
+            tooltip: 'Limpar Concluídos',
             onPressed: () => _confirmClear(context, ref),
           ),
         ],
@@ -36,7 +36,7 @@ class GroceryScreen extends ConsumerWidget {
                     color: Colors.grey,
                   ),
                   SizedBox(height: 16),
-                  Text('Your list is empty!'),
+                  Text('Sua lista está vazia!'),
                 ],
               ),
             );
@@ -93,29 +93,29 @@ class GroceryScreen extends ConsumerWidget {
 
   void _showAddDialog(BuildContext context, WidgetRef ref) {
     final nameController = TextEditingController();
-    String selectedCategory = 'General';
+    String selectedCategory = 'Geral';
     final categories = [
-      'General',
-      'Produce',
-      'Dairy',
-      'Meat',
-      'Bakery',
-      'Frozen',
-      'Household',
+      'Geral',
+      'Produtos',
+      'Laticínios',
+      'Carnes',
+      'Padaria',
+      'Congelados',
+      'Casa e Limpeza',
     ];
 
     showDialog(
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Add Item'),
+          title: const Text('Adicionar Item'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: nameController,
                 autofocus: true,
-                decoration: const InputDecoration(labelText: 'Item Name'),
+                decoration: const InputDecoration(labelText: 'Nome do Item'),
                 textCapitalization: TextCapitalization.sentences,
               ),
               const SizedBox(height: 16),
@@ -125,14 +125,14 @@ class GroceryScreen extends ConsumerWidget {
                     .map((c) => DropdownMenuItem(value: c, child: Text(c)))
                     .toList(),
                 onChanged: (val) => setState(() => selectedCategory = val!),
-                decoration: const InputDecoration(labelText: 'Category'),
+                decoration: const InputDecoration(labelText: 'Categoria'),
               ),
             ],
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(context),
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             ElevatedButton(
               onPressed: () async {
@@ -154,16 +154,16 @@ class GroceryScreen extends ConsumerWidget {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Clear Completed?'),
-        content: const Text('This will remove all checked items.'),
+        title: const Text('Limpar Concluídos?'),
+        content: const Text('Isso removerá todos os itens marcados.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
+            child: const Text('Cancelar'),
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Clear'),
+            child: const Text('Limpar'),
           ),
         ],
       ),
