@@ -97,7 +97,7 @@ class _EditMemberDialogState extends ConsumerState<EditMemberDialog> {
     if (_nameController.text.isEmpty) return;
 
     // Convert Color to Hex
-    final colorInt = _selectedColor.value;
+    final colorInt = _selectedColor.toARGB32();
     final hex =
         '#${colorInt.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 

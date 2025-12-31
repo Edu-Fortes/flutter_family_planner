@@ -192,7 +192,7 @@ class _HomeView extends ConsumerWidget {
                   return const SizedBox.shrink();
                 },
                 loading: () => const CircularProgressIndicator(),
-                error: (_, __) => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
               ),
             ],
           ),
@@ -269,7 +269,7 @@ class _MobileMenuScreen extends ConsumerWidget {
                 return const SizedBox.shrink();
               },
               loading: () => const CircularProgressIndicator(),
-              error: (_, __) => const SizedBox.shrink(),
+              error: (_, _) => const SizedBox.shrink(),
             ),
           ],
         ),
