@@ -1,0 +1,367 @@
+id,autor,frase
+1,Duke Ellington,Os problemas são oportunidades para se mostrar o que sabe.
+2,Henry Ford,"Nossos fracassos, às vezes, são mais frutíferos do que os êxitos."
+3,Samuel Beckett,Tente de novo. Fracasse de novo. Mas fracasse melhor
+4,Sócrates,"É costume de um tolo, quando erra, queixar-se dos outros. É costume de um sábio queixar-se de si mesmo"
+5,W. F. Grenfel,"O verdadeiro heroísmo consiste em persistir por mais um momento, quando tudo parece perdido"
+6,Norman Bawes,Cada cliente é como se fosse primeiro e único
+7,Santo Agostinho,"Mesmo que já tenhas feito uma longa caminhada, há sempre um novo caminho a fazer"
+8,Ciclo dos Profissionais de Venda,Vender é construir uma ponte entre você e seu cliente e fazê-lo atravessar para o seu lado
+9,Churton Collins,"Na prosperidade, nossos amigos nos conhecem; na adversidade, nós é que conhecemos nossos amigos"
+10,Jean Paul Sartre,"A felicidade não está em fazer o que a gente quer, e sim querer o que a gente faz"
+11,Carl Sandburg,Nada acontece a menos que sonhemos antes
+12,Walt Disney,É sempre divertido fazer o impossível
+13,Jan Carlzon,A coisa mais cara é transformar um cliente insatisfeito em satisfeito
+14,Oscar Wilde,Experiência é o nome que cada um dá a seus erros
+15,Abraham Lincoln,Lembre sempre que a sua vontade de triunfar é mais importante do que qualquer outra coisa
+16,Anatole France,Prefiro os erros do entusiasmo à indiferença da sabedoria
+17,Carter Brow,"Na realidade, vendas e serviços são inseparáveis"
+18,Napoleão Bonaparte,"A arte de ser ora audacioso, ora prudente, é a arte de vencer"
+19,H. Jackson Brown Jr.,"Seja corajoso. Mesmo que você não seja, finja ser. Ninguém nota a diferença"
+20,Moliere,"Não somos responsáveis apenas pelo que fazemos, mas também pelo que deixamos de fazer"
+21,Michael Gerber,"A estratégia de marketing começa, termina, vive e morre com o cliente"
+22,R. H. Grant,"Quando você contrata pessoas mais inteligentes do que você, prova que é mais inteligente do que elas"
+23,Michael Jordan,"O talento vence jogos, mas só o trabalho em equipe vence campeonatos"
+24,Hugh Prather,Um negócio nunca é bom se com ele conseguimos um inimigo
+25,Joel L. Griffith,Um objetivo nada mais é do que um sonho com limite de tempo
+26,Elmer Letterman,Sorte é o que acontece quando a preparação encontra a oportunidade
+27,Phill Knight,O mercado dita inovações. Quem não segue vira peça de museu
+28,Vidal Sasson,O único lugar que o sucesso vem antes do trabalho é no dicionário
+29,William Ahmanson,"Se você quiser ir daqui para lá no mundo dos negócios, não encontrará nenhuma linha reta para levá-lo"
+30,R. Buckminster Fuller,Integridade é a essência de todo negócio
+31,Peter Drucker,Existe o risco que você jamais pode correr. Existe o risco que você jamais pode deixar de correr
+32,Henry Ford,As duas coisas mais importantes não aparecem no balanço da empresa: sua reputação e o seu time
+33,Orison Swett Marden,A qualidade do seu trabalho tem tudo a ver com a qualidade da sua vida
+34,Michael Treacy,Nenhuma empresa pode ter sucesso tentando tudo para todos
+35,Walter Reuther,Nunca se esqueça de um cliente; e nunca deixe que um cliente esqueça você
+36,Aristóteles,"Somos o que repetidamente fazemos. Portanto, a excelência não é um feito, é um hábito"
+37,Marabel Morgan,"Persistência é irmã gêmea da excelência. Uma é mãe da qualidade, a outra a mãe do tempo"
+38,Theodoro Levitt,O propósito de uma companhia é criar e manter o cliente
+39,Sam Walton,Comemore os seus sucessos. Veja com humor os seus fracassos
+40,Alfred Tennyson,"Autorrespeito, autoconhecimento e autocontrole conduzem a vida ao poder supremo"
+41,Henri Barbusse,É tentando o impossível que se chega à realização do possível
+42,Richard Whiteley,Ganharão o jogo empresas que têm como missão exceder as expectativas dos clientes
+43,Bill Gates,"Toda empresa precisa ter gente que erra, que não tem medo de errar e que aprende com erro"
+44,Ralph Waldo Emerson,A confiança em si mesmo é o primeiro segredo do sucesso
+45,Provérbio Gal,Aquele que pretende ser um líder tem que ser uma ponte
+46,Peter Ducker,Sempre que se vê um empreendimento de sucesso é porque alguém antes tomou uma decisão destemida
+47,John Tschohl,Serviços aos clientes é uma estratégia de marketing
+48,Norman Vincent Peale,Muda tuas ideias e mudarás teu mundo
+49,John Kao,Sua tarefa como líder é criar uma atmosfera que transforme o antagonismo em energia criativa
+50,John Tschohl,A publicidade traz os clientes até a porta; mas o mau serviço envia eles direto para fora
+51,Daryl Bernstein,Único cliente bom é o cliente feliz. Lembre-se: clientes felizes adoram gastar dinheiro
+52,Jean Rozwadowski,Devemos prometer somente aquilo que podemos entregar e entregar mais do que prometemos
+53,Georg Wilhelm,Nada de importante no mundo foi realizado sem paixão
+54,Célia Chaim,Quem tem a obrigação de visualizar o futuro não é o cliente
+55,Roland Barthes,"Profissional nota 10 é aquele que tem 2 pontos de esforço, 3 pontos de talento e 5 pontos de caráter"
+56,Dean Rusk,Uma das melhores maneiras de convencer os outros é ouvindo. Ouça todos
+57,Masaaki Imai,"O importante é mudar sempre, mesmo que estejamos crescendo e ganhando o jogo"
+58,Barrie Hopson e Mike Scally,Sempre que você vai encontrar um cliente você é a empresa
+59,Dave Weinbaum,"Se não puder destacar-se pelo talento, vença pelo esforço"
+60,Segundo Mandamento da TAM,Em busca do ótimo não se faz o bom
+61,Thomas Edison,"Se existe uma forma de fazer melhor, descubra-a"
+62,Sérgio Almeida,Fechar os olhos e os ouvidos para o cliente é uma loucura. É um suicídio empresarial
+63,Steve Jobs,Não deixe o ruído das opiniões dos outros abafar a sua própria voz interior
+64,John F. Kennedy,Somente os que ousam errar muito podem realizar muito
+65,General George S. Patton,Aceite os desafios para que possa sentir o sabor da vitória
+66,Louis Pasteur,A sorte favorece a mente preparada
+67,Karl Albrecht,"Quando os momentos da verdade não são gerenciados, o serviço regride até a mediocridade"
+68,Robert H. Schuller,"Metas são necessárias não só para nos motivar, mas para nos manter vivos"
+69,Earl Nightingate,Pessoas com meta têm sucesso pois sabem onde estão indo
+70,Marco Aurélio,A pessoa comum é exigente com os outros. A superior é exigente consigo mesmo
+71,Sófocles,Não há sucesso sem dificuldade
+72,Carl Sewell,Os clientes julgam os serviços pela maneira que são tratados por aqueles com quem tem contato
+73,Walter Gagehot,Um grande prazer na vida é fazer aquilo que dizem que você não é capaz de fazer
+74,Eugene F. Ware,Toda glória advém de ousar começar
+75,Bruce Hammonds,"Todas as pequenas coisas, juntas, formam uma base de clientes fiéis e mais lucrativas"
+76,Roy L. Smith,A pessoa que não acredita em si mesmo não acredita em mais nada
+77,Cotton,"Grandes mentes estão prontas não apenas para explorar oportunidades, mas para criá-las"
+78,Ben Stein,O primeiro passo indispensável para conseguir coisas na vida é decidir o que você quer
+79,Jack Lowenstein,A percepção quando chega a ser julgada por outros é a realidade
+80,H. W. Arnold,O pior fracassado do mundo é aquele que perdeu o entusiasmo
+81,John Ruskin,"A maior recompensa pelo trabalho não é o que a pessoa ganha, é o que ela se torna através dele"
+82,Steven Hronec,Quando as expectativas aumentam inicia-se um ciclo interminável e contínuo de melhoria
+83,Confúcio,Aquele que cometeu um erro e não corrigiu está cometendo outro erro
+84,Raul Follerean,A vitória sempre foi de quem nunca duvidou dela
+85,Walter Savage Landor,Os satisfeitos nada mais fazem. Os insatisfeitos são os únicos propulsores do mundo
+86,S. Marcos,Todas as coisas são possíveis àqueles que creem
+87,Norman Vincent Peale,O problema é que a maioria das pessoas prefere um elogio que prejudique do que uma crítica que beneficie
+88,Albert Hirschman,A decepção surge da disparidade entre a expectativa de uma experiência agradável e a experiência real
+89,Dom Resende Costa,Prefiro a angústia da busca do que a paz da acomodação
+90,F. Veiga,Os únicos limites das pessoas são o tamanho de suas ideias e o grau de sua dedicação
+91,Aldous Huxley,"Conhecimento não é aquilo que você sabe, mas o que você faz com aquilo que sabe"
+92,Rick Tate,Fidelidade do cliente é a chave para lucratividade e crescimento futuro
+93,Provérbio ,"Critica o que fazes, e não faças o que criticas"
+94,Lord Chesterfield,"O que merece ser feito, merece ser bem feito"
+95,Henry Ford,"Não encontre defeitos, encontre soluções. Qualquer um sabe queixar-se"
+96,Elbert Hubbard,"Para evitar críticas: não faça nada, não diga nada, não seja nada"
+97,Marcos Gouv,As pessoas abominam a impessoalidade do negócio
+98,J. F. Mitchell,Nunca aceite o ‘não’ como resposta
+99,Diógenes Laércio,A natureza nos deu uma língua e dois ouvidos para que ouçamos mais do que falamos
+100,Sérgio Almeida,"Se você não puder manter, não proponha nada; esta é a regra básica na satisfação do cliente"
+101,Kauto,Feliz aquele que sabe adquirir experiência com o erro dos outros
+102,Eugène Ionesco,Querer ser de seu tempo é já estar ultrapassado
+103,Norman Vincent Peale,Planeje o seu trabalho hoje para todos os dias trabalhar o seu plano
+104,David Freemantle,Supere a expectativa do cliente com pequenas ações frequentes e não solicitadas
+105,Earle Wilson,Sucesso é apenas sorte; pergunte para qualquer fracassado
+106,Henry Miller,Destino não é exterior a nós; somos nós que criamos nosso próprio destino dia após dia
+107,Provérbio chin,O homem que removeu a montanha começou carregando as pedras
+108,Heinz Rahnan,O gosto amargo da baixa qualidade dura bem mais do que a doçura do preço inferior
+109,Lecouve,A covardia é o medo aceito; a coragem é o medo dominado
+110,Onassis,Todos os dias me levanto para vencer
+111,Enzo Ferrari,Meu sucesso se deve ao fato de me cercar de pessoas competentes
+112,Nathiel Hover,Não atrase o seu progresso com medo de fracassar
+113,Business Week,As pessoas são a força direcional por trás do crescimento
+114,Sétimo Mandamento da TAM,Quem não tem inteligência para criar tem que ter coragem para copiar
+115,Eleanor Roosvelt,Ninguém pode ferir você sem o seu consentimento
+116,Denis Waitley,O verdadeiro risco é não fazer nada
+117,Lao Tsu,Aquele que domina os outros é forte; aquele que domina a si mesmo é todo-poderoso
+118,Theodore Roosvelt,"Faça o que puder, com o que tiver, onde estiver"
+119,Claus Moller,A qualidade do serviço e produto é decorrência da qualidade das pessoas
+120,William Shakespeare,"Nossas dúvidas são traidoras e nos fazem perder, por medo de tentar, o que poderíamos ganhar"
+121,Henry John Kaiser,Os problemas são apenas oportunidades com roupas de trabalho
+122,William J. Bennett,Não nos transformamos de uma hora para outra aquilo que não cooperamos para nos tornar
+123,Henry David Thoreau,O que a pessoa pensa a respeito de si mesmo indica o seu destino
+124,Steve Jobs,Decidir o que não fazer é tão importante quanto decidir o que fazer. Isso é verdadeiro para companhias e também para produtos
+125,Roberto Maksoud,O cliente precisa saber que nós nos importamos com ele
+126,Gandhi,Devemos ser a mudança que queremos ver no mundo
+127,Eleanor Roosvelt,Você tem que fazer as coisas que pensa não ser capaz de fazer
+128,Publilius Syrus,"Em toda a iniciativa, considere aonde você poderia chegar"
+129,Henry Ford,Ninguém pode construir uma reputação com base naquilo que ainda vai fazer
+130,Fortune Magazine,A comunicação é a principal fonte de poder pessoal
+131,Effie Jones,Falhar no planejamento é um planejamento para falhar
+132,Jean de La Fontaine,"Em todas as situações, deve-se considerar o objetivo"
+133,AMA,65% dos negócios de uma empresa vêm de clientes já existentes – não de novos
+134,Margaret Preston,"É o motivo que engrandece a ação; é o fazer, não o feito"
+135,Provérbio island,Quem vive sem disciplina morre sem honra
+136,Will Rogers,Mesmo se você estiver no caminho certo será atropelado se ficar sentado nele
+137,George Savile,Desperdiçar o próprio tempo é uma espécie de suicídio
+138,Lori Tansey,A ética dá lucro para a empresa
+139,George Santayana,O fanatismo consiste em redobrar esforços quando o objetivo for esquecido
+140,Laurence J. Peter,"Se você não sabe para onde vai, provavelmente terminará em algum outro lugar"
+141,Fred Wiersema,Os atrasos deixam o cliente com os dentes rangendo
+142,Lao Tsu,Uma jornada de mil quilômetros começa pelo primeiro passo
+143,Michael de Montaigne,Algumas derrotas são mais triunfantes do que vitórias
+144,Marco Aurélio Antonino,Nossa vida é o que os nossos pensamentos fazem dela
+145,Ditado asiático,"Quem torna as coisas mais fáceis para os outros, torna as coisas mais fáceis para si"
+146,Claus Moller,Custa 6 vezes mais conquistar um novo cliente do que manter um antigo
+147,Steve Jobs,Seja um parâmetro de qualidade. Algumas pessoas não estão acostumadas a um ambiente onde a excelência é esperada
+148,John Wayne,Coragem é estar morto de medo e encilhar o cavalo mesmo assim
+149,Alexander Soljenitsyn,O talento sempre tem consciência de sua própria abundância e não cria objeções em dividir
+150,Dick Armey,Não se pode progredir enquanto se ajustam contas
+151,Charles Dickens,O único bem coletivo é aquele que assegura o bem individual de cada cidadão
+152,Provérbio ind,"Ouça, ou sua língua vai conservar sua surdez"
+153,Eric Berne,O que você dá é o que você recebe
+154,Robert Collier,"Sucesso é a soma de pequenos esforços repetidos dia sim, e no outro também"
+155,Ursula L. Le Guin,"É bom ter objetivo para a jornada à frente; mas, no fim, a jornada é o que importa"
+156,Abbie Hoffman,Jamais imponha a sua linguagem às pessoas com as quais você deseja se comunicar
+157,Charles Lazarus,Você tem que escutar os clientes e então agir com base no que eles disseram
+158,Ralph Waldo Emerson,As pessoas só vêem aquilo que estão preparadas para ver
+159,John Stuart Mill,Quem só conhece o seu lado do problema sabe pouco sobre ele
+160,John Heywood,Duas cabeças são melhores do que uma
+161,William Bernbach,"Uma ideia pode virar pó ou mágica, depende do talento que esbarra nela"
+162,Sérgio Almeida,A empresa que busca encantar o cliente é inquieta e criativa
+163,Heráclito,A oposição traz concórdia. A discórdia vem da mais perfeita harmonia
+164,Confúcio,Não busque todas as qualidades em uma pessoa só
+165,Gary Oldman,Ter senso de humor é tão importante quanto ter talento
+166,Will Rogers,"Todos nós somos ignorantes, só que em assuntos diferentes"
+167,"Chuang-tsé, adaptado",O plano de só uma pessoa pode ser incompleto; o de duas será melhor
+168,Barrie Hopson,Ninguém jamais ganha uma discussão com o cliente
+169,Thomas Fuller,O hoje é aluno do ontem
+170,John F. Kennedy,"Jamais devemos negociar por medo, mas jamais devemos ter medo de negociar"
+171,Fábio Eltz,"O tratamento deve sempre ser positivo, independente da circunstância"
+172,Louisa May Alcott,"Não tenha medo de tempestades, pois estarás aprendendo a manejar o barco"
+173,Derek Bok,"Se você pensa que educação é uma coisa cara, tente a ignorância"
+174,Amelia Earhart,"A coisa mais difícil é a decisão de agir, o resto é apenas tenacidade"
+175,Elizabeth Cady Stanton,O autodesenvolvimento é um dever maior do que o auto-sacrifício
+176,Alexander Graham Bell,Grandes descobertas e progressos envolvem a cooperação de várias mentes
+177,Sérgio Quartiermeister,É preciso buscar fatias na multidão
+178,Provérbio japon,Caia 7 vezes. Levante-se 8
+179,Simone de Beauvoir,Ninguém nasce um gênio; a pessoa se torna um
+180,Lao Tzu,"Quando eu deixar de ser o que sou, eu irei me tornar o que poderia ser"
+181,Steve Jobs,"Seu tempo é limitado, então não o gaste vivendo a vida de outra pessoa"
+182,Oliver Wendell Holmes,"A mente humana, expandida por uma ideia nova, jamais retorna à dimensão original"
+183,Sérgio Almeida,"A percepção é um ponto de vista individual. Portanto, não se discute"
+184,Anderson Silva,"Você deve guardar um dragão dentro de si. Quando precisar, você deixa o dragão sair"
+185,Vincent Van Gogh,Eu preferiria morrer de paixão do que de tédio
+186,Gloria Steinem,"Sonhar, afinal, é uma forma de planejamento"
+187,Benjamin Disraeli,O segredo do sucesso é a constância do objetivo
+188,Benjamin Franklin,"Escreva algo que valha a pena ler, ou faça alguma coisa que valha a pena escrever"
+189,Fela Moscovici,Saber ouvir e ter equilíbrio emocional: fundamentais no atendimento ao cliente
+190,Orson Welles,É preciso ter dúvidas. Só os estúpidos têm uma confiança absoluta em si mesmos
+191,Marie Curie,"Devemos crer que somos dotados de alguma coisa, e que essa coisa, deve ser atingida a todo custo"
+192,Confúcio,Tudo tem beleza. Mas nem todos podem ver
+193,Robert Peterson,Prometa o que não irá cumprir e seus clientes formarão um mau conceito a seu respeito
+194,Pôster da IBM,"Se o índice de falha é de 1 em 1 milhão, o que você responde para esse cliente?"
+195,Abigail Van Buren,"Se você deseja que seus filhos acabem bem, gaste o dobro de tempo com eles, e metade do dinheiro"
+196,Manual da Nordstrom,"Use bom senso em todas as situações; não espere por regras novas, pois não virão"
+197,George Lucas,"Todo mundo tem talento, é só uma questão de se mexer até descobrir qual"
+198,John Nasbit,"Quanto mais nos defrontamos com tecnologia, maior nosso anseio por contatos humanos"
+199,Provérbio grego,Bem começado é meio caminho andado
+200,Buddha,A mente é tudo. Você se torna aquilo que você pensa
+201,Donald Beaver Jr.,Uma queixa é alguém avisando que você não o satisfez. E isso é escrito em ouro
+202,Júlio Ribeiro,"O medo de ousar, ser agressivo ou inovar fechou mais empresas do que a ousadia"
+203,H. Ross Perot,"Minha primeira mensagem é: escute, escute e escute o pessoal que faz o trabalho"
+204,Franklin D. Roosvelt,A preguiça caminha tão devagar que a pobreza a alcança com rapidez
+205,Denis Walker,"Dos clientes insatisfeitos, apenas 5% efetivamente fez uma reclamação"
+206,Henry David Thoreau,Vá na direção de seus sonhos. Viva a vida que você imaginou
+207,Marcos Gouv,Não existe empresa nota 10 com empregados nota 5
+208,Quin Guanshu,Perder tempo é um castigo insuportável
+209,Chip Bell,"Serviços ao cliente não consistem em satisfação, mas sim em deslumbre"
+210,Janis Joplin,Você pode destruir o seu hoje se preocupando com o amanhã
+211,Fábio Eltz,"Todo cliente quer ser tratado como especial, não quer ser ‘mais um'"
+212,Platão,Começar é a parte mais importante de qualquer trabalho
+213,Ron Bern,Nossa meta é resolver problemas antes que os clientes saibam que eles existam
+214,Nelson Mandela,Uma boa cabeça e um bom coração formam sempre uma combinação formidável
+215,Kaoru Ishikawa,"Se você não tem item de controle, você não tem gerência"
+216,John Tschohl,Os colaboradores evitam as queixas pois eles nunca foram instruídos a lidar com elas
+217,Theodore Roosvelt,O maior prêmio que a vida oferece é trabalhar em algo que valha a pena
+218,George Lichtenberg,Um bom porta-voz transforma leite desnatado em chantilly
+219,J. Walters,"Um líder genuíno é motivador: orienta as pessoas, não as dirige; envolve, não as coage"
+220,Kevin Kruse,"A vida não é sobre ter, é sobre dar e ser"
+221,Karl Albrecht,O resultado final de um serviço é um sentimento
+222,Terry Vavra,O objetivo do marketing de relacionamento é a retenção de clientes
+223,Paul Deschanel,Aqueles que nada fazem estão sempre dispostos a criticar os que fazem algo
+224,Juran,"Cliente é todo aquele impactado por seus produtos, processos e serviços"
+225,Raimar Richers,As empresas terão de adaptar-se às preferências individuais de cada consumidor ou sucumbirão
+226,Fiódor Dostoiévski,Sente-se sufocado aquele sem um objetivo de vida
+227,Claus Moller,"Não critique a pessoa, somente o comportamento"
+228,Horácio,É doce deixar a mente relaxar de vez em quando
+229,Ken O,O presente é o único momento que temos para fazer algo
+230,William Shakespeare,"Todo mundo é capaz de dominar uma dor, exceto quem a sente"
+231,Richard Whiteley,Desperdício é tudo aquilo que não representa valor para o cliente
+232,Thomas Carlyle,A convicção é inútil – a menos que se transforme em conduta
+233,Phillip Crosby,"Quanto mais distante o administrador do administrado, menos eficiente a administração"
+234,Dalai Lama,A felicidade não é algo pronto. Ela vem de suas próprias ações
+235,Jefferson Le,Devemos seguir o exemplo dos rios: dão suas águas ao mar e nunca ficam vazios
+236,Peter Drucker,Meu maior poder como consultor é ser ignorante e fazer algumas perguntas
+237,L. L. Bean Inc,O cliente é alguém que nos traz suas necessidades
+238,Elbert Hubbard,O pior erro que você pode cometer em sua vida é ficar com medo de cometer algum erro
+239,Catherine Romano,"Se houver uma opção melhor, os clientes mudarão de fornecedor"
+240,M. J. Babcock,"O alvo na vida não deve ser ultrapassar os outros, mas sim ultrapassar a nós mesmos"
+241,Terrell Harris,"Quando são cometidos lapsos nos serviços, as vendas caem"
+242,Publilius Syrus,Jamais prometa mais do que pode fazer
+243,Milton Moore,Se você for direto e honesto com seus clientes eles o tratarão como amigo
+244,Cesare Cant,Não arriscar nada é arriscar tudo
+245,George Washington,"Não se comprometa a fazer o que não é capaz, mas preocupe-se em manter sua promessa"
+246,Video Business Magazine,"Quando você atende ao telefone, a imagem da sua empresa é percebida do outro lado da linha"
+247,Benjamin Franklin,Um investimento em conhecimento sempre paga o maior juro
+248,Lunda Goldzimer,Contrate o tipo de pessoa capaz de construir relações sólidas com os clientes
+249,George Gurdjieff,"Não abandone suas três grandes e inabaláveis amigas: a intuição, a inocência e a fé"
+250,Geraldo Vandré,"Quem sabe faz a hora, não espera acontecer"
+251,Peter Drucker,A única coisa que sabemos sobre o futuro é que ele será diferente
+252,David Clutterbuck,"Quando você perde um cliente, perde transações futuras e propaganda boca a boca"
+253,Harols Abbott,"Eu me sentia derrotado por não ter sapatos, até o dia que encontrei um homem que não tinha pés"
+254,Paulo Apsan,Uma empresa que não escuta o seu cliente está fadada ao insucesso
+255,Leo Burnett,"Se você não é notado, você não tem nada"
+256,Abraham Lincoln,Não são os anos de sua vida que contam. É a vida em seus anos
+257,Don Peppers,O marketing de relacionamento reduz o impacto dos esforços feitos pela concorrência
+258,Heródoto,É melhor ser invejado do que lastimado
+259,Walt Disney,"Você pode construir o mais belo lugar do mundo, mas serão as pessoas que tornarão realidade o sonho"
+260,Reinaldo Polito,Não existe técnica de comunicação mais relevante do que a naturalidade
+261,Carmen Miranda,Na vida sempre fazemos escolhas. Ainda que escolhemos não escolher
+262,Sales and Marketing Magazine,A melhor maneira de vender é facilitando a compra
+263,Samuel Smiles,"A cortesia tem um grande poder, e não custa nada"
+264,Beverly Sills,"Você pode ficar desapontado se falhar, mas já está derrotado se não tentar"
+265,Texas American Bank,"Se souber o nome do cliente, use em sua saudação"
+266,Tom Peter e Nancy Austin,Ofereça ao cliente algo que vale a pena e ele pagará o que vale
+267,Constantino C. Vigil,"Seja hoje melhor do que ontem e, amanhã, melhor do que hoje"
+268,Oscar Wilde,O acordo é o último recurso dos que não têm imaginação
+269,Richard Whiteley,"Lucro é vital, mas o cliente vem antes. Sem ele não há lucro"
+270,Norman Vaughan,Sonhe grande e se atreva a falhar
+271,David Ogilvy,"Eu sempre uso o produto dos meus clientes; não é bajulação, mas boas maneiras"
+272,Mark van Doren,"Traga novas ideias e trate-as regiamente, pois uma delas pode ser o rei"
+273,Dito popular,Quem quer agradar a todo mundo não agrada a ninguém
+274,Samuel Johnson,Leve é a tarefa quando muitos dividem o trabalho
+275,Linda Goldzimer,Você seria seu próprio cliente?
+276,Vince Lombardi,"Ganhar não é tudo, mas querer ganhar é"
+277,John Young,Aquilo que você não pode medir não pode ser aperfeiçoado
+278,Charles Brower,O conveniente e o correto raramente são a mesma coisa
+279,Gordon Spainhower,"A confiabilidade do serviço é fator mais importante de todos, duas vezes acima dos demais"
+280,Albert Einstein,"Uma pessoa que nunca cometeu um erro, nunca tentou nada de novo"
+281,Claus Moller,Você precisa ver seus erros para poder fazer algo a respeito deles
+282,Provérbio norte,"Se os ventos não vão servir, leve os remos"
+283,Sérgio Quartiermeister,Ninguém cativa um cliente sabendo apenas o nome e onde ele mora
+284,John Tschohol,O trabalho de adivinhação torna inevitável a insatisfação
+285,Eleanor Roosvelt,"Quando deixamos de contribuir, começamos a morrer"
+286,Laurent Svadon,A chave do negócio é analisar cada cliente antes de servi-lo
+287,Kelly Young,O problema não é o problema. O problema é a atitude com relação ao problema
+288,Tom Peters,Verifique seus sentimentos à porta do escritório
+289,Carl Sewell,Diga ‘obrigado’ sempre que tiver uma oportunidade
+290,Winston Churchill,Você nunca vai chegar ao seu destino se você parar e atirar pedras em cada cão que late
+291,Leonard Berry,A confiança dos clientes é o ativo mais valioso de uma companhia de serviços
+292,Sabedoria Persa,Não ergas um edifício sem fortes alicerces ou viverás com medo
+293,Stephen Covey,Trate seus funcionários assim como quer que eles tratem seus melhores clientes
+294,Lema do Ritz,Somos damas e cavalheiros servindo damas e cavalheiros
+295,Albert Einstein,"Esforce-se para não ser um sucesso, mas sim para ser valioso"
+296,Peter Francese,"Projete um sistema que equilibre processo, produto e medidas de satisfação"
+297,William McKnight,Ouça qualquer um que tenha uma ideia original. Encoraje-o. Deixe as pessoas continuarem suas ideias
+298,Phillip Crosby,"Satisfaça o cliente no começo, no fim e sempre"
+299,Benjamin Franklin,Eu não falhei no teste. Eu só encontrei 100 maneiras de fazer errado
+300,Júlio Lobos,Quer segurança em um emprego? Faça um cliente feliz
+301,Antoine de Saint,O essencial é invisível aos olhos
+302,Richard Whiteley,"Conheça seus clientes como sua família, satisfaça-os e você terá sucesso"
+303,Sérgio Almeida,Um cliente que reclama é um consultor. Aponta o que melhorar e não cobra nada por isso
+304,George Eliot,Nunca é tarde demais para ser o que você poderia ter sido
+305,Jay Curry e Ludovic Stora,Não existe melhor publicidade do que um cliente satisfeito
+306,Alvin Toffler,"Gerenciar não é mais a direção da coisa, mas o aperfeiçoamento das pessoas"
+307,Carl Sewell,A pessoa no comando não pode apenas pregar. Ela precisa liderar com exemplos
+308,Larry Light,A marca é um símbolo que identifica uma promessa na cabeça do cliente
+309,Paulo Freire,Não há saber mais ou saber menos: há saberes diferentes
+310,Jack Welck,"O papel do gerente é de orientar, energizar e estimular"
+311,Booker T. Washington,"Se você quiser se levantar, levante outra pessoa"
+312,John Sewell,"Você pode tosquiar o carneiro por muitos anos, mas poderá esfolá-lo somente uma vez"
+313,H. W. Beecher,Quanto maior a dificuldade maior é o mérito de superá-la
+314,Bill Bleuel,Cuidar o lado emocional do cliente é mais importante do que consertar um equipamento
+315,Leonard Berry,O cliente compra uma promessa e são obrigados a confiar que a empresa ira cumpri-la
+316,Ayn Rand,"A questão não é quem vai me deixar; mas sim, quem vai me impedir"
+317,Claus Moller,Certifique-se de que suas palavras e seus atos estão em harmonia
+318,Steven Leonard Jr.,As pessoas estão atentas a você. A qualidade está no seu coração
+319,Edmund Burke,Nossa paciência conquistará mais do que a nossa força
+320,Karl Albrecht,Se os clientes não estão reclamando você está perdendo a oportunidade de ser melhor
+321,Larry Wilson,"Você pode mudar sem crescer, mas não pode crescer sem mudar"
+322,Texas American Bank,Agradeça com um sorriso a presença do cliente
+323,Ronald Osborn,Você não crescerá a não ser que tente algo além daquilo que já domina
+324,Richard Whiteley,Faça a voz do cliente ecoar em toda a empresa
+325,George Addair,Tudo o que você sempre quis está do outro lado do seu medo
+326,Marry W. Shelley,Nada contribui tanto para clarear a mente do que um objetivo claro
+327,Norman Vincent Peale,Um único pensamento pode revolucionar sua vida
+328,John Tschohl,Todo o marketing da sua empresa pode ser anulado por um único empregado grosseiro
+329,Fábio Eltz,"Quando compreende-se o que o cliente deseja, torna-se mais fácil atendê-lo"
+330,Albert Schweitzer,Só serão felizes aqueles que procurarem e encontrarem um meio de servir
+331,Linda Goldzimer,A percepção que o cliente tem em relação ao seu produto é o que determina sua satisfação
+332,Coco Chanel,O mais corajoso dos atos ainda é pensar com a própria cabeça
+333,Carl Sewell,A coisa mais importante para o cliente é: você fez aquilo que prometeu?
+334,Booker T. Washington,Nada que valha a pena acontece a alguém exceto o resultado do trabalho árduo
+335,Fortune Magazine,A forma mais barata de manter clientes satisfeitos é servi-los bem desde o começo
+336,Don Peppers,A melhor forma de ter clientes para sempre é oferecer a eles um negócio irrecusável
+337,Rosa Parks,"Tenho aprendido ao longo dos anos que, quando a mente está pronta, isso diminui o medo"
+338,Lema da Bio,O cliente é o chefe
+339,João Guimar,"Mestre não é quem sempre ensina, mas quem de repente aprende"
+340,Bob Harbage,"Se não agrega valor, pare; se faz sentido para o cliente, prossiga"
+341,Leonard Berry,Os clientes sempre reconhecem quando alguém saiu do seu caminho para ajudá-los
+342,Albert Einstein,Espíritos grandiosos sempre encontraram oposição violenta de mentes medíocres
+343,Cesare Romiti,A busca da qualidade é um estado de espírito
+344,Frank Petro,O que é realmente necessário em empresa que presta serviço são pessoas que gostem de pessoas
+345,Bertrand Russell,É importante aprender a não se aborrecer com opiniões diferentes das suas
+346,Sérgio Almeida,O melhor vendedor do mundo é um cliente encantado
+347,Roger Crowford,Ter problemas na vida é inevitável. Ser derrotado por eles é opcional
+348,Paulo Apsan,Limitar o foco ao cliente provoca uma espécie de cegueira para inovações
+349,Jaclyn Jeffrey,A prestação de bons serviços nunca é acidental
+350,Cristóvão Colombo,Você nunca pode atravessar o oceano até que você tenha coragem de perder de vista a costa
+351,Carl Sewell,O que pode sair errado? Essa é a pergunta a se fazer ao projetar os seus sistemas
+352,Benjamin Franklin,Toma conta do teu negócio ou ele tomará conta de ti
+353,Sérgio Almeida,A satisfação do cliente é uma relação entre o que ele viu e o que ele esperava ver
+354,Provérbio espanhol,Perde tudo quem perde o momento certo
+355,Claus Moller,Combata a mediocridade – em si e nos outros
+356,Dalai Lama,Lembre-se que não conseguir o que você quer é algumas vezes um lance de sorte
+357,Arthur Riedel,Uma atitude vitoriosa é meio caminho andado para o sucesso
+358,James Belasco,Agregar valor é resolver os problemas do cliente
+359,John Young,Fazer rápido obriga-o a fazer certo logo na primeira vez
+360,Donald Beaver Jr.,Devemos preferir as queixas aos cumprimentos
+361,Carl Sewell,Todos os sorrisos do mundo não irão ajudá-lo se o produto ou serviço não for o que o cliente deseja
+362,Leonard Berry,Um serviço excelente é uma estratégia de lucro
+363,Henry Ford,Você pode tudo se tiver entusiasmo
+364,Carl Sandburg,"Não sei aonde vou, mas já estou no caminho"
+365,Fortune Magazine,Conte a verdade – ou não conte nada. Ninguém gosta de gente mentirosa
+366,Henry Ford,O insucesso é uma oportunidade para recomeçar com mais inteligência

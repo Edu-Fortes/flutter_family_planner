@@ -284,7 +284,7 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                           textCapitalization: TextCapitalization.sentences,
                           textInputAction: TextInputAction.go,
                           decoration: const InputDecoration(
-                            hintText: 'Add new item...',
+                            hintText: 'Adicione um novo item...',
                             border: OutlineInputBorder(),
                             contentPadding: EdgeInsets.symmetric(
                               horizontal: 16,
