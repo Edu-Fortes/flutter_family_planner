@@ -226,7 +226,7 @@ class _MobileMenuScreen extends ConsumerWidget {
           children: [
             const Icon(Icons.home_filled, size: 80, color: Colors.blueGrey),
             const SizedBox(height: 20),
-            const Text('Welcome Home!'),
+            const Text('Bem-Vindo!'),
             const SizedBox(height: 40),
 
             // Link to Family Management (Not in Bottom Bar)
