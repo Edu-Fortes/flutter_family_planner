@@ -1,7 +1,8 @@
 import 'dart:async';
-// import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
+import '../../data/quote_repository.dart';
 
 class BigClockWidget extends StatefulWidget {
   const BigClockWidget({super.key});
@@ -37,7 +38,7 @@ class _BigClockWidgetState extends State<BigClockWidget> {
     final dateStr = DateFormat(
       'EEEE, d \'de\' MMMM \'de\' yyyy',
       'pt_BR',
-    ).format(_now); // Monday, Dec 21
+    ).format(_now); // Domingo, 21 de Dezembro de 2025
 
     return Column(
       mainAxisSize: MainAxisSize.min,
@@ -67,19 +68,43 @@ class _BigClockWidgetState extends State<BigClockWidget> {
   }
 }
 
-class QuoteWidget extends StatelessWidget {
+class QuoteWidget extends ConsumerStatefulWidget {
   const QuoteWidget({super.key});
 
   @override
+  ConsumerState<QuoteWidget> createState() => _QuoteWidgetState();
+}
+
+class _QuoteWidgetState extends ConsumerState<QuoteWidget> {
+  Timer? _midnightTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    _scheduleMidnightRefresh();
+  }
+
+  void _scheduleMidnightRefresh() {
+    // Check every minute if the day has changed
+    _midnightTimer = Timer.periodic(const Duration(minutes: 1), (timer) {
+      final now = DateTime.now();
+      // If it's exactly 00:00 (or close to it), refresh the data
+      if (now.hour == 0 && now.minute == 0) {
+        // This forces the FutureProvider to fetch data again
+        ref.invalidate(dailyQuoteProvider);
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _midnightTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // In a real app, you might fetch these from an API or Supabase
-    final quotes = [
-      '"Family is not an important thing. It\'s everything." – Michael J. Fox',
-      '"The memories we make with our family is everything."',
-      '"In family life, love is the oil that eases friction, the cement that binds closer together, and the music that brings harmony." – Friedrich Nietzsche',
-      '"Ohana means family. Family means nobody gets left behind or forgotten."',
-    ];
-    final randomQuote = quotes[DateTime.now().day % quotes.length];
+    final quoteAsync = ref.watch(dailyQuoteProvider);
 
     return Container(
       padding: const EdgeInsets.all(24),
@@ -88,10 +113,39 @@ class QuoteWidget extends StatelessWidget {
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
       ),
-      child: Text(
-        randomQuote,
-        textAlign: TextAlign.center,
-        style: const TextStyle(fontSize: 18, fontStyle: FontStyle.italic),
+      // Use AnimatedSwitcher for a smooth transition when quote changes
+      child: AnimatedSwitcher(
+        duration: const Duration(milliseconds: 500),
+        child: quoteAsync.when(
+          loading: () => const SizedBox(
+            height: 50,
+            child: Center(child: CircularProgressIndicator()),
+          ),
+          error: (err, _) => Text('Error loading quote: $err'),
+          data: (quote) => Column(
+            key: ValueKey(quote.text), // Key helps animation detect change
+            children: [
+              Text(
+                '"${quote.text}"',
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22,
+                  fontStyle: FontStyle.italic,
+                  fontFamily: 'Georgia', // Serif fonts look better for quotes
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                "- ${quote.author}",
+                style: TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                  color: Theme.of(context).colorScheme.primary,
+                ),
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
