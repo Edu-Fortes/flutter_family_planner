@@ -101,12 +101,15 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
               // 2. Daily Forecast Row
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: weather.daily.skip(1).take(5).map((day) {
+                children: weather.daily.skip(1).take(6).map((day) {
                   // skip(1) to avoid showing "Today" again in the small list
                   return Column(
                     children: [
                       Text(
-                        DateFormat('E').format(day.date), // Mon, Tue...
+                        DateFormat(
+                          'E',
+                          'pt-BR',
+                        ).format(day.date), // SEG, TER...
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           fontSize: 12,

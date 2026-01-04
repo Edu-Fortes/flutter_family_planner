@@ -20,13 +20,13 @@ class WeatherData {
   factory WeatherData.fromJson(Map<String, dynamic> json) {
     final current = json['current'];
     final dailyList = (json['daily'] as List)
-        .take(6)
+        .take(7)
         .map((x) => DailyForecast.fromJson(x))
         .toList();
 
     return WeatherData(
       currentTemp: (current['temp'] as num).toDouble(),
-      currentCondition: current['weather'][0]['main'],
+      currentCondition: current['weather'][0]['description'],
       iconCode: current['weather'][0]['icon'],
       daily: dailyList,
     );
@@ -62,13 +62,14 @@ class WeatherRepository {
     final apiKey = dotenv.env['OPENWEATHER_API_KEY'];
     final lat = dotenv.env['LATITUDE'];
     final lon = dotenv.env['LONGITUDE'];
+    final lang = dotenv.env['LANGUAGE'];
 
     if (apiKey == null || lat == null || lon == null) {
       throw Exception("Missing Weather Config in .env");
     }
 
     final url = Uri.parse(
-      'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&exclude=minutely,hourly,alerts&units=metric&appid=$apiKey',
+      'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&lang=$lang&exclude=minutely,hourly,alerts&units=metric&appid=$apiKey',
     );
 
     final response = await http.get(url);
