@@ -1,3 +1,4 @@
+import 'package:family_planner/features/dashboard/presentation/widgets/weather_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -161,18 +162,22 @@ class _HomeView extends ConsumerWidget {
               const BigClockWidget(),
               const SizedBox(height: 40),
 
-              // 2. The Quote
+              // 2. Wheather Widget
+              const WeatherWidget(),
+              const SizedBox(height: 40),
+
+              // 3. The Quote
               const QuoteWidget(),
               const SizedBox(height: 60),
 
-              // 3. Welcome Text
+              // 4. Welcome Text
               Text(
                 'Bem-vindo, ${user?.email}',
                 style: Theme.of(context).textTheme.bodyLarge,
               ),
               const SizedBox(height: 20),
 
-              // 4. Admin Only: Invite Button
+              // 5. Admin Only: Invite Button
               profileAsync.when(
                 data: (profile) {
                   if (profile?.role == 'admin') {

@@ -1,0 +1,141 @@
+import 'dart:async';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:intl/intl.dart';
+import '../../data/weather_repository.dart';
+
+class WeatherWidget extends ConsumerStatefulWidget {
+  const WeatherWidget({super.key});
+
+  @override
+  ConsumerState<WeatherWidget> createState() => _WeatherWidgetState();
+}
+
+class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
+  Timer? _timer;
+
+  @override
+  void initState() {
+    super.initState();
+    // Refresh every 30 minutes (1800 seconds)
+    _timer = Timer.periodic(const Duration(minutes: 30), (timer) {
+      ref.invalidate(weatherProvider);
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  // Helper to get Icon URL
+  String getIconUrl(String code) =>
+      'https://openweathermap.org/img/wn/$code@2x.png';
+
+  @override
+  Widget build(BuildContext context) {
+    final weatherAsync = ref.watch(weatherProvider);
+
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Theme.of(
+          context,
+        ).colorScheme.primaryContainer.withValues(alpha: 0.4),
+        borderRadius: BorderRadius.circular(20),
+        border: Border.all(color: Colors.white.withValues(alpha: 0.1)),
+      ),
+      child: weatherAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (err, _) => Center(
+          child: Text(
+            'Weather Error: $err',
+            style: const TextStyle(color: Colors.red),
+          ),
+        ),
+        data: (weather) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              // 1. Current Weather (Big Header)
+              Row(
+                children: [
+                  Image.network(
+                    getIconUrl(weather.iconCode),
+                    width: 64,
+                    height: 64,
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        '${weather.currentTemp.round()}°',
+                        style: Theme.of(context).textTheme.displayMedium
+                            ?.copyWith(
+                              fontWeight: FontWeight.bold,
+                              color: Theme.of(
+                                context,
+                              ).colorScheme.onPrimaryContainer,
+                            ),
+                      ),
+                      Text(
+                        weather.currentCondition,
+                        style: Theme.of(context).textTheme.titleMedium
+                            ?.copyWith(
+                              color: Theme.of(context)
+                                  .colorScheme
+                                  .onPrimaryContainer
+                                  .withValues(alpha: 0.7),
+                            ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const Divider(height: 30, color: Colors.black12),
+
+              // 2. Daily Forecast Row
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: weather.daily.skip(1).take(6).map((day) {
+                  // skip(1) to avoid showing "Today" again in the small list
+                  return Column(
+                    children: [
+                      Text(
+                        DateFormat(
+                          'E',
+                          'pt-BR',
+                        ).format(day.date), // SEG, TER...
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                        ),
+                      ),
+                      Image.network(
+                        getIconUrl(day.iconCode),
+                        width: 40,
+                        height: 40,
+                      ),
+                      Text(
+                        '${day.maxTemp.round()}°',
+                        style: const TextStyle(fontWeight: FontWeight.w500),
+                      ),
+                      Text(
+                        '${day.minTemp.round()}°',
+                        style: TextStyle(fontSize: 10, color: Colors.grey[600]),
+                      ),
+                    ],
+                  );
+                }).toList(),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
