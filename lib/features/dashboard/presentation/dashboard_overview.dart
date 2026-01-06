@@ -1,10 +1,10 @@
+import 'package:family_planner/features/dashboard/presentation/widgets/calendar_summary_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'widgets/dashboard_widgets.dart'; // Clock, Quote
 import 'widgets/weather_widget.dart';
 import 'widgets/grocery_summary_widget.dart';
 import 'widgets/priority_summary_widget.dart';
-import '../../calendar/presentation/calendar_screen.dart';
 
 class DashboardOverview extends StatelessWidget {
   const DashboardOverview({super.key});
@@ -55,7 +55,7 @@ class DashboardOverview extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(width: 20),
-                    const SizedBox(width: 220, child: WeatherWidget()),
+                    const SizedBox(width: 420, child: WeatherWidget()),
                   ],
                 ),
 
@@ -100,7 +100,7 @@ class DashboardOverview extends StatelessWidget {
               // Using the Calendar Screen but constraining it to this box
               // Ideally, you'd strip the Scaffold/AppBar from CalendarScreen
               // so it fits purely as a widget here.
-              child: const CalendarScreen(),
+              child: const CalendarSummaryWidget(),
             ),
           ),
         ],
