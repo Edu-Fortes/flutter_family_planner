@@ -93,6 +93,37 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                       ),
                     ],
                   ),
+                  Column(
+                    children: [
+                      Text(
+                        'Nascer do sol: ${weather.sunrise}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.7),
+                        ),
+                      ),
+                      Text(
+                        'Pôr do sol: ${weather.sunset}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.7),
+                        ),
+                      ),
+                      Text(
+                        'Índice UV: ${weather.uvi}',
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Theme.of(context)
+                              .colorScheme
+                              .onPrimaryContainer
+                              .withValues(alpha: 0.7),
+                        ),
+                      ),
+                    ],
+                  ),
                 ],
               ),
 

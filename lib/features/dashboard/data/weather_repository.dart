@@ -2,12 +2,16 @@ import 'dart:convert';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:intl/intl.dart';
 
 // 1. The Models
 class WeatherData {
   final double currentTemp;
   final String currentCondition; // e.g., "Clouds"
   final String iconCode; // e.g., "04d"
+  final String sunrise;
+  final String sunset;
+  final double uvi;
   final List<DailyForecast> daily;
 
   WeatherData({
@@ -15,6 +19,9 @@ class WeatherData {
     required this.currentCondition,
     required this.iconCode,
     required this.daily,
+    required this.sunrise,
+    required this.sunset,
+    required this.uvi,
   });
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
@@ -23,12 +30,21 @@ class WeatherData {
         .take(7)
         .map((x) => DailyForecast.fromJson(x))
         .toList();
+    final sunrise = DateTime.fromMillisecondsSinceEpoch(
+      current['sunrise'] * 1000,
+    );
+    final sunset = DateTime.fromMillisecondsSinceEpoch(
+      current['sunset'] * 1000,
+    );
 
     return WeatherData(
       currentTemp: (current['temp'] as num).toDouble(),
       currentCondition: current['weather'][0]['description'],
       iconCode: current['weather'][0]['icon'],
       daily: dailyList,
+      sunrise: DateFormat('HH:mm').format(sunrise),
+      sunset: DateFormat('HH:mm').format(sunset),
+      uvi: (current['uvi'] as num).toDouble(),
     );
   }
 }
