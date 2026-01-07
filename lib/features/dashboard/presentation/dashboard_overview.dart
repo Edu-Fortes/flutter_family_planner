@@ -61,10 +61,12 @@ class DashboardOverview extends StatelessWidget {
                 ),
 
                 const SizedBox(height: 24),
-                const QuoteWidget(),
+
+                // 2. Daily Quote
+                Row(children: [Expanded(child: QuoteWidget())]),
                 const SizedBox(height: 24),
 
-                // 2. Action Summaries (Side by Side if space permits, or stacked)
+                // 3. Action Summaries (Side by Side if space permits, or stacked)
                 Expanded(
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

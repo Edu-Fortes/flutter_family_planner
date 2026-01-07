@@ -43,7 +43,6 @@ class _QuoteWidgetState extends ConsumerState<QuoteWidget> {
 
     return Container(
       padding: const EdgeInsets.all(24),
-      margin: const EdgeInsets.symmetric(horizontal: 40),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
         borderRadius: BorderRadius.circular(16),
