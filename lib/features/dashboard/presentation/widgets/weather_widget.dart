@@ -221,11 +221,7 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                           value: weather.sunset,
                           context: context,
                         ),
-                        _WeatherStatCard(
-                          label: 'Índice UV',
-                          value: '${weather.uvi}',
-                          context: context,
-                        ),
+                        _UVIndexStatCard(uvi: weather.uvi, context: context),
                       ],
                     ),
                   ),
@@ -312,6 +308,50 @@ class _WeatherStatCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+/// Private widget for displaying UV Index with color-coded risk level.
+class _UVIndexStatCard extends StatelessWidget {
+  const _UVIndexStatCard({required this.uvi, required this.context});
+
+  final double uvi;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    final uvLevel = UVIndexLevel.getLevel(uvi);
+
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(
+            'Índice UV: ',
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+              color: Theme.of(
+                context,
+              ).colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+            ),
+          ),
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+            decoration: BoxDecoration(
+              color: uvLevel.color,
+              borderRadius: BorderRadius.circular(4),
+            ),
+            child: Text(
+              uvLevel.label,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Colors.white,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
