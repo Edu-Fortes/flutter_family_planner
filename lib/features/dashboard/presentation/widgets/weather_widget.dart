@@ -93,36 +93,32 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                       ),
                     ],
                   ),
-                  Column(
-                    children: [
-                      Text(
-                        'Nascer do sol: ${weather.sunrise}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.7),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        _WeatherStatCard(
+                          label: 'Sensação',
+                          value: '${weather.feelsLike.round()}°',
+                          context: context,
                         ),
-                      ),
-                      Text(
-                        'Pôr do sol: ${weather.sunset}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.7),
+                        _WeatherStatCard(
+                          label: 'Nascer do sol',
+                          value: weather.sunrise,
+                          context: context,
                         ),
-                      ),
-                      Text(
-                        'Índice UV: ${weather.uvi}',
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: Theme.of(context)
-                              .colorScheme
-                              .onPrimaryContainer
-                              .withValues(alpha: 0.7),
+                        _WeatherStatCard(
+                          label: 'Pôr do sol',
+                          value: weather.sunset,
+                          context: context,
                         ),
-                      ),
-                    ],
+                        _WeatherStatCard(
+                          label: 'Índice UV',
+                          value: '${weather.uvi}',
+                          context: context,
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -166,6 +162,47 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
             ],
           );
         },
+      ),
+    );
+  }
+}
+
+/// Private widget for displaying a single weather stat (label + value).
+class _WeatherStatCard extends StatelessWidget {
+  const _WeatherStatCard({
+    required this.label,
+    required this.value,
+    required this.context,
+  });
+
+  final String label;
+  final String value;
+  final BuildContext context;
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 4),
+      child: RichText(
+        text: TextSpan(
+          children: [
+            TextSpan(
+              text: '$label: ',
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onPrimaryContainer.withValues(alpha: 0.7),
+              ),
+            ),
+            TextSpan(
+              text: value,
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                fontWeight: FontWeight.w600,
+                color: Theme.of(context).colorScheme.onPrimaryContainer,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

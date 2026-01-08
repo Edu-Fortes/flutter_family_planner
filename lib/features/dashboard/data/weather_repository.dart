@@ -7,6 +7,7 @@ import 'package:intl/intl.dart';
 // 1. The Models
 class WeatherData {
   final double currentTemp;
+  final double feelsLike;
   final String currentCondition; // e.g., "Clouds"
   final String iconCode; // e.g., "04d"
   final String sunrise;
@@ -16,6 +17,7 @@ class WeatherData {
 
   WeatherData({
     required this.currentTemp,
+    required this.feelsLike,
     required this.currentCondition,
     required this.iconCode,
     required this.daily,
@@ -39,6 +41,7 @@ class WeatherData {
 
     return WeatherData(
       currentTemp: (current['temp'] as num).toDouble(),
+      feelsLike: (current['feels_like'] as num).toDouble(),
       currentCondition: current['weather'][0]['description'],
       iconCode: current['weather'][0]['icon'],
       daily: dailyList,
