@@ -14,6 +14,7 @@ class WeatherData {
   final String sunset;
   final double uvi;
   final List<DailyForecast> daily;
+  final List<WeatherAlert> alerts;
 
   WeatherData({
     required this.currentTemp,
@@ -24,6 +25,7 @@ class WeatherData {
     required this.sunrise,
     required this.sunset,
     required this.uvi,
+    required this.alerts,
   });
 
   factory WeatherData.fromJson(Map<String, dynamic> json) {
@@ -48,6 +50,11 @@ class WeatherData {
       sunrise: DateFormat('HH:mm').format(sunrise),
       sunset: DateFormat('HH:mm').format(sunset),
       uvi: (current['uvi'] as num).toDouble(),
+      alerts: json['alerts'] != null
+          ? (json['alerts'] as List)
+                .map((x) => WeatherAlert.fromJson(x))
+                .toList()
+          : <WeatherAlert>[],
     );
   }
 }
@@ -75,6 +82,32 @@ class DailyForecast {
   }
 }
 
+class WeatherAlert {
+  final String event;
+  final String description;
+  final DateTime start;
+  final DateTime end;
+  final String? source;
+
+  WeatherAlert({
+    required this.event,
+    required this.description,
+    required this.start,
+    required this.end,
+    this.source,
+  });
+
+  factory WeatherAlert.fromJson(Map<String, dynamic> json) {
+    return WeatherAlert(
+      event: json['event'] ?? 'Weather Alert',
+      description: json['description'] ?? '',
+      start: DateTime.fromMillisecondsSinceEpoch(json['start'] * 1000),
+      end: DateTime.fromMillisecondsSinceEpoch(json['end'] * 1000),
+      source: json['tags']?[0] as String?,
+    );
+  }
+}
+
 // 2. The Repository
 class WeatherRepository {
   Future<WeatherData> fetchWeather() async {
@@ -88,7 +121,7 @@ class WeatherRepository {
     }
 
     final url = Uri.parse(
-      'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&lang=$lang&exclude=minutely,hourly,alerts&units=metric&appid=$apiKey',
+      'https://api.openweathermap.org/data/3.0/onecall?lat=$lat&lon=$lon&lang=$lang&exclude=minutely,hourly&units=metric&appid=$apiKey',
     );
 
     final response = await http.get(url);

@@ -33,6 +33,63 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
   String getIconUrl(String code) =>
       'https://openweathermap.org/img/wn/$code@2x.png';
 
+  void _showAlertModal(BuildContext context, WeatherAlert alert) {
+    showModalBottomSheet(
+      context: context,
+      builder: (context) => Container(
+        padding: const EdgeInsets.all(20),
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.warning, color: Colors.orange[700], size: 28),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Text(
+                      alert.event,
+                      style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: Navigator.of(context).pop,
+                    icon: const Icon(Icons.close),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              if (alert.source != null) ...[
+                Text(
+                  'Source: ${alert.source}',
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                    fontStyle: FontStyle.italic,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 12),
+              ],
+              Text(
+                'Validity: ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.start)} - ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.end)}',
+                style: Theme.of(
+                  context,
+                ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                alert.description,
+                style: Theme.of(context).textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final weatherAsync = ref.watch(weatherProvider);
@@ -59,6 +116,58 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
             crossAxisAlignment: CrossAxisAlignment.start,
             mainAxisSize: MainAxisSize.min,
             children: [
+              // 0. Weather Alerts (if any)
+              if (weather.alerts.isNotEmpty) ...[
+                SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: weather.alerts.map((alert) {
+                      return Padding(
+                        padding: const EdgeInsets.only(right: 8),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            onTap: () => _showAlertModal(context, alert),
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange[50],
+                                border: Border.all(
+                                  color: Colors.orange[700]!,
+                                  width: 1.5,
+                                ),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.warning,
+                                    color: Colors.orange[700],
+                                    size: 20,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Text(
+                                    alert.event,
+                                    style: Theme.of(context).textTheme.bodySmall
+                                        ?.copyWith(
+                                          color: Colors.orange[700],
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+              ],
               // 1. Current Weather (Big Header)
               Row(
                 children: [
