@@ -10,14 +10,7 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
-  final TextEditingController _textController = TextEditingController();
-  final FocusNode _focusNode = FocusNode();
-
-  // 1. STATE: Which category are we VIEWING? (Filter)
-  String _activeFilter = 'Todos';
-
-  // 2. STATE: Which category are we ADDING to? (Input)
-  String _selectedInputCategory = 'Geral';
+  String _activeFilter = 'Todos'; // Default filter
 
   final List<String> _categories = [
     'Geral',
@@ -28,28 +21,6 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     'Congelados',
     'Limpeza',
   ];
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    _focusNode.dispose();
-    super.dispose();
-  }
-
-  void _addItem() {
-    if (_textController.text.trim().isEmpty) return;
-
-    ref
-        .read(groceryRepositoryProvider)
-        .addItem(_textController.text.trim(), _selectedInputCategory);
-
-    _textController.clear();
-
-    // UX Improvement: If we are looking at a specific filter (e.g., Dairy),
-    // and we add a "Meat" item, we might want to switch the view so the user sees it?
-    // For now, let's just keep the focus so they can keep typing.
-    _focusNode.requestFocus();
-  }
 
   Future<void> _confirmClear() async {
     final confirm = await showDialog<bool>(
@@ -75,21 +46,28 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     }
   }
 
+  void _showAddItemSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _AddItemSheet(categories: _categories),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final groceryAsync = ref.watch(groceryStreamProvider);
-
-    // 3. DATA PREP: Get the full list safely
     final allItems = groceryAsync.asData?.value ?? [];
 
-    // 4. CALCULATE COUNTS DYNAMICALLY
-    // We create a map to store "completed" and "total" for every category
+    // --- 1. CALCULATE COUNTS ---
     final Map<String, int> totalCounts = {};
     final Map<String, int> cartCounts = {};
 
-    // Initialize counts for "All" and fixed categories
-    totalCounts['All'] = allItems.length;
-    cartCounts['All'] = allItems.where((i) => i.isCompleted).length;
+    totalCounts['Todos'] = allItems.length;
+    cartCounts['Todos'] = allItems.where((i) => i.isCompleted).length;
 
     for (var cat in _categories) {
       final catItems = allItems.where((i) => i.category == cat);
@@ -97,56 +75,103 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
       cartCounts[cat] = catItems.where((i) => i.isCompleted).length;
     }
 
-    // 5. FILTER THE LIST based on _activeFilter
+    // --- 2. PREPARE SUBTITLE TEXT ---
+    String subtitleText;
+    if (_activeFilter == 'Todos') {
+      final total = totalCounts['Todos'] ?? 0;
+      final done = cartCounts['Todos'] ?? 0;
+      subtitleText = 'Total: $done/$total comprados';
+    } else {
+      final total = totalCounts[_activeFilter] ?? 0;
+      final done = cartCounts[_activeFilter] ?? 0;
+      subtitleText = 'Filtro: $_activeFilter ($done/$total)';
+    }
+
+    // --- 3. FILTER THE LIST ---
     final visibleItems = _activeFilter == 'Todos'
         ? allItems
         : allItems.where((i) => i.category == _activeFilter).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Compras'),
+        // --- NEW: Title with Dynamic Counter ---
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Lista de Compras'),
+            Text(
+              subtitleText, // Shows "Filtro: Carne (2/5)"
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ),
         actions: [
+          // Filter Button
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Filtrar por Categoria',
+            onSelected: (String value) {
+              setState(() {
+                _activeFilter = value;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              final options = ['Todos', ..._categories];
+
+              return options
+                  .map((cat) {
+                    final count = totalCounts[cat] ?? 0;
+                    final completed = cartCounts[cat] ?? 0;
+
+                    // Hide empty categories from menu (unless active)
+                    if (count == 0 && cat != 'Todos' && cat != _activeFilter) {
+                      return null;
+                    }
+
+                    return PopupMenuItem<String>(
+                      value: cat,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(cat),
+                          if (count > 0)
+                            Text(
+                              '($completed/$count)',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  })
+                  .whereType<PopupMenuItem<String>>()
+                  .toList();
+            },
+          ),
+
+          // Clear Button
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
+            icon: const Icon(Icons.delete_sweep_outlined),
             tooltip: 'Excluir Concluídos',
             onPressed: _confirmClear,
           ),
         ],
       ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddItemSheet(context),
+        label: const Text('Adicionar'),
+        icon: const Icon(Icons.add_shopping_cart),
+      ),
+
       body: Column(
         children: [
-          // --- TOP FILTER BAR (WRAPPED) ---
-          Container(
-            width: double.infinity, // Ensure it fills width
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-              ),
-            ),
-            child: Wrap(
-              spacing: 8.0, // Horizontal gap between chips
-              runSpacing: 8.0, // Vertical gap when wrapping to new line
-              children: [
-                // "All" Chip
-                _buildFilterChip(
-                  'Todos',
-                  cartCounts['All']!,
-                  totalCounts['All']!,
-                ),
-
-                // Category Chips
-                ..._categories.map((cat) {
-                  return _buildFilterChip(
-                    cat,
-                    cartCounts[cat] ?? 0,
-                    totalCounts[cat] ?? 0,
-                  );
-                }),
-              ],
-            ),
-          ),
           // --- MAIN LIST ---
           Expanded(
             child: visibleItems.isEmpty
@@ -163,15 +188,16 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                         Text(
                           _activeFilter == 'Todos'
                               ? 'Lista vazia!'
-                              : 'Nenhum item de ${_activeFilter.toLowerCase()}.',
+                              : 'Nenhum item de $_activeFilter.',
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
                   )
-                : ListView.builder(
-                    padding: const EdgeInsets.only(bottom: 140),
+                : ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 100),
                     itemCount: visibleItems.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
                       final item = visibleItems[index];
                       return Dismissible(
@@ -198,8 +224,7 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                               color: item.isCompleted ? Colors.grey : null,
                             ),
                           ),
-                          // Subtitle is redundant if we are already in a specific category filter,
-                          // but helpful when in "All" view.
+                          // Only show subtitle if viewing "Todos"
                           subtitle: _activeFilter == 'Todos'
                               ? Text(
                                   item.category,
@@ -223,132 +248,149 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                     },
                   ),
           ),
-
-          // --- INPUT AREA ---
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(alpha: 0.1),
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Input Categories (For ADDING)
-                  Wrap(
-                    spacing: 8.0,
-                    runSpacing: 0.0,
-                    children: _categories.map((category) {
-                      final isSelected = _selectedInputCategory == category;
-                      return ChoiceChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          if (selected) {
-                            setState(() => _selectedInputCategory = category);
-                          }
-                        },
-                        selectedColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimaryContainer
-                              : null,
-                          fontSize: 12,
-                        ),
-                        checkmarkColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimaryContainer,
-                        visualDensity: VisualDensity.compact,
-                      );
-                    }).toList(),
-                  ),
-
-                  const SizedBox(height: 12),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _textController,
-                          focusNode: _focusNode,
-                          textCapitalization: TextCapitalization.sentences,
-                          textInputAction: TextInputAction.go,
-                          decoration: const InputDecoration(
-                            hintText: 'Adicione um novo item...',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          onSubmitted: (_) => _addItem(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      IconButton.filled(
-                        onPressed: _addItem,
-                        icon: const Icon(Icons.add),
-                        iconSize: 28,
-                        style: IconButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
+}
 
-  // Helper Widget for the Top Filter Bar
-  Widget _buildFilterChip(String label, int completed, int total) {
-    final isSelected = _activeFilter == label;
-    // Don't show "0/0" if it's empty, unless it's selected
-    if (!isSelected && total == 0 && label != 'All') {
-      return const SizedBox.shrink();
-    }
+// -----------------------------------------------------------------------------
+// NEW WIDGET: The Bottom Sheet Input (Continuous Entry Version)
+// -----------------------------------------------------------------------------
+class _AddItemSheet extends ConsumerStatefulWidget {
+  final List<String> categories;
+  const _AddItemSheet({required this.categories});
 
-    // REMOVED: Padding widget (Wrap handles spacing now)
-    return FilterChip(
-      label: Text('$label ($completed/$total)'),
-      selected: isSelected,
-      onSelected: (selected) {
-        setState(() {
-          _activeFilter = label;
-        });
-      },
-      backgroundColor: Theme.of(
-        context,
-      ).colorScheme.surfaceContainerHighest, // Slightly darker than surface
-      selectedColor: Theme.of(context).colorScheme.secondaryContainer,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? Theme.of(context).colorScheme.onSecondaryContainer
-            : Theme.of(context).colorScheme.onSurface,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        fontSize: 13,
+  @override
+  ConsumerState<_AddItemSheet> createState() => _AddItemSheetState();
+}
+
+class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
+  final _controller = TextEditingController();
+
+  // 1. ADD FOCUS NODE
+  // This allows us to keep the keyboard open after submitting
+  final FocusNode _focusNode = FocusNode();
+
+  String _selectedCategory = 'Geral';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose(); // Don't forget to dispose!
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_controller.text.trim().isEmpty) return;
+
+    ref
+        .read(groceryRepositoryProvider)
+        .addItem(_controller.text.trim(), _selectedCategory);
+
+    // 2. CONTINUOUS ENTRY LOGIC
+    _controller.clear(); // Clear the text
+    _focusNode.requestFocus(); // Keep the keyboard up!
+
+    // We REMOVED Navigator.pop(context) here so the sheet stays open.
+    // To close it, the user simply taps outside the sheet or swipes it down.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: keyboardPadding + 20,
       ),
-      showCheckmark: false,
-      visualDensity:
-          VisualDensity.compact, // Make them slightly smaller to fit more
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Drag Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Header with "Done" button (Optional, but nice since we removed auto-close)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Novo Item', style: Theme.of(context).textTheme.titleLarge),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Concluir"),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Input Field
+          TextField(
+            controller: _controller,
+            focusNode: _focusNode, // Attach the focus node
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+            textInputAction: TextInputAction
+                .go, // "Go" or "Next" feels right for rapid entry
+            decoration: const InputDecoration(
+              hintText: 'O que falta na despensa?',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.add),
+            ),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 16),
+
+          // Category Selector
+          Text("Categoria:", style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+
+          // 3. HORIZONTAL SCROLL FIX
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal, // Enables sliding
+            child: Row(
+              children: widget.categories.map((cat) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(cat),
+                    selected: _selectedCategory == cat,
+                    onSelected: (selected) {
+                      if (selected) setState(() => _selectedCategory = cat);
+                    },
+                    visualDensity: VisualDensity.compact,
+                  ),
+                );
+              }).toList(),
+            ),
+          ),
+
+          const SizedBox(height: 24),
+
+          // Submit Button
+          FilledButton.icon(
+            onPressed: _submit,
+            icon: const Icon(Icons.add_circle_outline),
+            label: const Text(
+              'Adicionar Outro',
+            ), // Changed text to imply continuity
+            style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
+          ),
+        ],
+      ),
     );
   }
 }
