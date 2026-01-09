@@ -10,11 +10,7 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
-  // 1. STATE: Which category are we VIEWING? (Filter)
-  String _activeFilter = 'Todos';
-
-  // Note: We removed the TextEditingController from here because
-  // it now lives inside the _AddItemSheet widget.
+  String _activeFilter = 'Todos'; // Default filter
 
   final List<String> _categories = [
     'Geral',
@@ -50,11 +46,10 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     }
   }
 
-  // --- NEW: Method to open the Drawer ---
   void _showAddItemSheet(BuildContext context) {
     showModalBottomSheet(
       context: context,
-      isScrollControlled: true, // Allows sheet to expand with keyboard
+      isScrollControlled: true,
       shape: const RoundedRectangleBorder(
         borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
       ),
@@ -67,12 +62,12 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     final groceryAsync = ref.watch(groceryStreamProvider);
     final allItems = groceryAsync.asData?.value ?? [];
 
-    // --- CALCULATE COUNTS (Your original logic) ---
+    // --- 1. CALCULATE COUNTS ---
     final Map<String, int> totalCounts = {};
     final Map<String, int> cartCounts = {};
 
-    totalCounts['All'] = allItems.length;
-    cartCounts['All'] = allItems.where((i) => i.isCompleted).length;
+    totalCounts['Todos'] = allItems.length;
+    cartCounts['Todos'] = allItems.where((i) => i.isCompleted).length;
 
     for (var cat in _categories) {
       final catItems = allItems.where((i) => i.category == cat);
@@ -80,24 +75,95 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
       cartCounts[cat] = catItems.where((i) => i.isCompleted).length;
     }
 
-    // --- FILTER LIST ---
+    // --- 2. PREPARE SUBTITLE TEXT ---
+    String subtitleText;
+    if (_activeFilter == 'Todos') {
+      final total = totalCounts['Todos'] ?? 0;
+      final done = cartCounts['Todos'] ?? 0;
+      subtitleText = 'Total: $done/$total comprados';
+    } else {
+      final total = totalCounts[_activeFilter] ?? 0;
+      final done = cartCounts[_activeFilter] ?? 0;
+      subtitleText = 'Filtro: $_activeFilter ($done/$total)';
+    }
+
+    // --- 3. FILTER THE LIST ---
     final visibleItems = _activeFilter == 'Todos'
         ? allItems
         : allItems.where((i) => i.category == _activeFilter).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Compras'),
+        // --- NEW: Title with Dynamic Counter ---
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Lista de Compras'),
+            Text(
+              subtitleText, // Shows "Filtro: Carne (2/5)"
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ),
         actions: [
+          // Filter Button
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Filtrar por Categoria',
+            onSelected: (String value) {
+              setState(() {
+                _activeFilter = value;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              final options = ['Todos', ..._categories];
+
+              return options
+                  .map((cat) {
+                    final count = totalCounts[cat] ?? 0;
+                    final completed = cartCounts[cat] ?? 0;
+
+                    // Hide empty categories from menu (unless active)
+                    if (count == 0 && cat != 'Todos' && cat != _activeFilter) {
+                      return null;
+                    }
+
+                    return PopupMenuItem<String>(
+                      value: cat,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(cat),
+                          if (count > 0)
+                            Text(
+                              '($completed/$count)',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  })
+                  .whereType<PopupMenuItem<String>>()
+                  .toList();
+            },
+          ),
+
+          // Clear Button
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
+            icon: const Icon(Icons.delete_sweep_outlined),
             tooltip: 'Excluir Concluídos',
             onPressed: _confirmClear,
           ),
         ],
       ),
 
-      // --- NEW: Floating Action Button ---
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddItemSheet(context),
         label: const Text('Adicionar'),
@@ -106,36 +172,6 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
 
       body: Column(
         children: [
-          // --- TOP FILTER BAR ---
-          Container(
-            width: double.infinity,
-            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).canvasColor,
-              border: Border(
-                bottom: BorderSide(color: Colors.grey.withValues(alpha: 0.2)),
-              ),
-            ),
-            child: Wrap(
-              spacing: 8.0,
-              runSpacing: 8.0,
-              children: [
-                _buildFilterChip(
-                  'Todos',
-                  cartCounts['All']!,
-                  totalCounts['All']!,
-                ),
-                ..._categories.map((cat) {
-                  return _buildFilterChip(
-                    cat,
-                    cartCounts[cat] ?? 0,
-                    totalCounts[cat] ?? 0,
-                  );
-                }),
-              ],
-            ),
-          ),
-
           // --- MAIN LIST ---
           Expanded(
             child: visibleItems.isEmpty
@@ -152,17 +188,14 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                         Text(
                           _activeFilter == 'Todos'
                               ? 'Lista vazia!'
-                              : 'Nenhum item de ${_activeFilter.toLowerCase()}.',
+                              : 'Nenhum item de $_activeFilter.',
                           style: const TextStyle(color: Colors.grey),
                         ),
                       ],
                     ),
                   )
                 : ListView.separated(
-                    // Changed to separated for cleaner look
-                    padding: const EdgeInsets.only(
-                      bottom: 100,
-                    ), // Extra space for FAB
+                    padding: const EdgeInsets.only(bottom: 100),
                     itemCount: visibleItems.length,
                     separatorBuilder: (_, _) => const Divider(height: 1),
                     itemBuilder: (context, index) {
@@ -191,6 +224,7 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                               color: item.isCompleted ? Colors.grey : null,
                             ),
                           ),
+                          // Only show subtitle if viewing "Todos"
                           subtitle: _activeFilter == 'Todos'
                               ? Text(
                                   item.category,
@@ -205,7 +239,6 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
                               : null,
                           value: item.isCompleted,
                           onChanged: (val) {
-                            // Using toggleStatus as per your repository
                             ref
                                 .read(groceryRepositoryProvider)
                                 .toggleStatus(item.id, item.isCompleted);
@@ -217,32 +250,6 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
           ),
         ],
       ),
-    );
-  }
-
-  Widget _buildFilterChip(String label, int completed, int total) {
-    final isSelected = _activeFilter == label;
-    if (!isSelected && total == 0 && label != 'All') {
-      return const SizedBox.shrink();
-    }
-
-    return FilterChip(
-      label: Text('$label ($completed/$total)'),
-      selected: isSelected,
-      onSelected: (selected) {
-        setState(() => _activeFilter = label);
-      },
-      backgroundColor: Theme.of(context).colorScheme.surfaceContainerHighest,
-      selectedColor: Theme.of(context).colorScheme.secondaryContainer,
-      labelStyle: TextStyle(
-        color: isSelected
-            ? Theme.of(context).colorScheme.onSecondaryContainer
-            : Theme.of(context).colorScheme.onSurface,
-        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-        fontSize: 13,
-      ),
-      showCheckmark: false,
-      visualDensity: VisualDensity.compact,
     );
   }
 }
