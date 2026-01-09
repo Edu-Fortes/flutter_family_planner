@@ -26,7 +26,7 @@ class MemberScreen extends ConsumerWidget {
           return ListView.separated(
             padding: const EdgeInsets.all(16),
             itemCount: members.length,
-            separatorBuilder: (_, __) => const Divider(),
+            separatorBuilder: (_, _) => const Divider(),
             itemBuilder: (context, index) {
               final member = members[index];
 
@@ -83,7 +83,7 @@ class MemberScreen extends ConsumerWidget {
               )
             : null,
         loading: () => null,
-        error: (_, __) => null,
+        error: (_, _) => null,
       ),
     );
   }
@@ -159,7 +159,7 @@ class MemberScreen extends ConsumerWidget {
 
                   // FIX: Updated logic to convert color to Hex String safely
                   // We treat the integer value as unsigned to ensure correct hex string
-                  final colorInt = selectedColor.value;
+                  final colorInt = selectedColor.toARGB32();
                   final hex =
                       '#${colorInt.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
 

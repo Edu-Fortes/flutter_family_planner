@@ -2,16 +2,17 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-// Import Features
+// --- FEATURE IMPORTS ---
 import '../../auth/data/auth_repository.dart';
 import '../../calendar/presentation/calendar_screen.dart';
 import '../../grocery/presentation/grocery_screen.dart';
 import '../../members/presentation/member_screen.dart';
-import '../../invitation/presentation/invitation_screen.dart'; // For invite tool
-import '../../profile/data/profile_repository.dart'; // To check admin role
+import '../../invitation/presentation/invitation_screen.dart';
+import '../../profile/data/profile_repository.dart';
+import '../../tasks/presentation/tasks_screen.dart'; // <--- The New Tasks Screen
 
-// Import Widgets
-import 'widgets/dashboard_widgets.dart';
+// --- WIDGET IMPORTS ---
+import 'dashboard_overview.dart'; // <--- The New "Command Center" Desktop Widget
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -23,24 +24,23 @@ class DashboardScreen extends ConsumerStatefulWidget {
 class _DashboardScreenState extends ConsumerState<DashboardScreen> {
   int _selectedIndex = 0;
 
-  // The list of pages for Mobile/Desktop navigation
-  // Note: We use a method to regenerate this so we can access 'context' if needed
-  List<Widget> _getPages() {
-    return [
-      const _HomeView(), // Index 0: The "Home" (Clock/Summary)
-      const CalendarScreen(), // Index 1: Full Calendar
-      const GroceryScreen(), // Index 2: Full Grocery List
-      const MemberScreen(), // Index 3: Family Members
-    ];
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: LayoutBuilder(
         builder: (context, constraints) {
+          // ============================================================
+          // 🖥️ DESKTOP VIEW (> 800px) - "The Command Center"
+          // ============================================================
           if (constraints.maxWidth > 800) {
-            // --- DESKTOP VIEW (Raspberry Pi) ---
+            final desktopPages = [
+              const DashboardOverview(), // Index 0: Summary Widget (Clock, Weather, etc.)
+              const TasksScreen(), // Index 1: Dedicated Task Manager
+              const GroceryScreen(), // Index 2: Full List
+              const CalendarScreen(), // Index 3: Full Calendar
+              const MemberScreen(), // Index 4: Family Management
+            ];
+
             return Row(
               children: [
                 NavigationRail(
@@ -68,16 +68,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ),
                   destinations: const [
                     NavigationRailDestination(
-                      icon: Icon(Icons.home),
-                      label: Text('Início'),
+                      icon: Icon(Icons.dashboard),
+                      label: Text('Home'),
                     ),
                     NavigationRailDestination(
-                      icon: Icon(Icons.calendar_month),
-                      label: Text('Calendário'),
+                      icon: Icon(Icons.check_circle_outlined),
+                      label: Text('Tarefas'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.shopping_cart),
                       label: Text('Mercado'),
+                    ),
+                    NavigationRailDestination(
+                      icon: Icon(Icons.calendar_month),
+                      label: Text('Calendário'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.people),
@@ -86,46 +90,58 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   ],
                 ),
                 const VerticalDivider(thickness: 1, width: 1),
-                // Main Content Area
-                Expanded(child: _getPages()[_selectedIndex]),
+                Expanded(
+                  // Safety check to prevent index out of bounds when switching views
+                  child:
+                      desktopPages[_selectedIndex >= desktopPages.length
+                          ? 0
+                          : _selectedIndex],
+                ),
               ],
             );
-          } else {
-            // --- MOBILE VIEW ---
-            // On Mobile, we don't show the "Clock" home screen as the default.
-            // We default to the Calendar or Grocery list for quick access.
-            // But to keep indices simple, we will map them:
-            // 0=Home(Menu), 1=Calendar, 2=Grocery
-
+          }
+          // ============================================================
+          // 📱 MOBILE VIEW (< 800px) - "Minimal & Focused"
+          // ============================================================
+          else {
             final mobilePages = [
-              // Mobile "Home" is a simple menu, not the big clock
-              const _MobileMenuScreen(),
-              const CalendarScreen(),
-              const GroceryScreen(),
+              const _MobileMenuScreen(), // Index 0: Minimal Menu
+              const TasksScreen(), // Index 1: Tasks
+              const GroceryScreen(), // Index 2: Grocery
+              const CalendarScreen(), // Index 3: Calendar
             ];
 
-            // Safety check for index
+            // Ensure index is valid for mobile (e.g., if switching from Desktop tab #4)
             final mobileIndex = _selectedIndex >= mobilePages.length
                 ? 0
                 : _selectedIndex;
 
             return Scaffold(
               body: mobilePages[mobileIndex],
-              bottomNavigationBar: BottomNavigationBar(
-                currentIndex: mobileIndex,
-                onTap: (index) => setState(() => _selectedIndex = index),
-                items: const [
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.home),
+              bottomNavigationBar: NavigationBar(
+                selectedIndex: mobileIndex,
+                onDestinationSelected: (index) =>
+                    setState(() => _selectedIndex = index),
+                destinations: const [
+                  NavigationDestination(
+                    icon: Icon(Icons.home_outlined),
+                    selectedIcon: Icon(Icons.home),
                     label: 'Início',
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.calendar_month),
-                    label: 'Calendário',
+                  NavigationDestination(
+                    icon: Icon(Icons.check_circle_outlined),
+                    selectedIcon: Icon(Icons.check_circle),
+                    label: 'Tarefas',
                   ),
-                  BottomNavigationBarItem(
-                    icon: Icon(Icons.shopping_cart),
+                  NavigationDestination(
+                    icon: Icon(Icons.shopping_cart_outlined),
+                    selectedIcon: Icon(Icons.shopping_cart),
                     label: 'Mercado',
+                  ),
+                  NavigationDestination(
+                    icon: Icon(Icons.calendar_month_outlined),
+                    selectedIcon: Icon(Icons.calendar_month),
+                    label: 'Agenda',
                   ),
                 ],
               ),
@@ -138,12 +154,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 }
 
 // -----------------------------------------------------------------------------
-// INTERNAL VIEWS
+// 📱 MOBILE HOME SCREEN (Restored Minimal Version)
 // -----------------------------------------------------------------------------
-
-/// THE DESKTOP "HOME" SCREEN (Clock, Quotes, Quick Actions)
-class _HomeView extends ConsumerWidget {
-  const _HomeView();
+class _MobileMenuScreen extends ConsumerWidget {
+  const _MobileMenuScreen();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -151,68 +165,8 @@ class _HomeView extends ConsumerWidget {
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
-      // No AppBar needed here, the NavRail is the "AppBar"
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              // 1. The Big Clock
-              const BigClockWidget(),
-              const SizedBox(height: 40),
-
-              // 2. The Quote
-              const QuoteWidget(),
-              const SizedBox(height: 60),
-
-              // 3. Welcome Text
-              Text(
-                'Bem-vindo, ${user?.email}',
-                style: Theme.of(context).textTheme.bodyLarge,
-              ),
-              const SizedBox(height: 20),
-
-              // 4. Admin Only: Invite Button
-              profileAsync.when(
-                data: (profile) {
-                  if (profile?.role == 'admin') {
-                    return FilledButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const InvitationScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.person_add),
-                      label: const Text('Gerenciar Convites'),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-                loading: () => const CircularProgressIndicator(),
-                error: (_, __) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-/// THE MOBILE "HOME" SCREEN (Simple Menu)
-class _MobileMenuScreen extends ConsumerWidget {
-  const _MobileMenuScreen();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final profileAsync = ref.watch(profileProvider);
-
-    return Scaffold(
       appBar: AppBar(
-        title: const Text('Planejamento Familiar'),
+        title: const Text('Family Planner'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -221,59 +175,82 @@ class _MobileMenuScreen extends ConsumerWidget {
         ],
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.home_filled, size: 80, color: Colors.blueGrey),
-            const SizedBox(height: 20),
-            const Text('Welcome Home!'),
-            const SizedBox(height: 40),
-
-            // Link to Family Management (Not in Bottom Bar)
-            SizedBox(
-              width: 250,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_) => const MemberScreen()),
-                  );
-                },
-                icon: const Icon(Icons.people),
-                label: const Text('Gerenciar Família'),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.family_restroom, size: 80, color: Colors.teal),
+              const SizedBox(height: 20),
+              Text(
+                'Olá, ${user?.email?.split('@')[0] ?? 'Membro'}!',
+                style: Theme.of(context).textTheme.headlineSmall,
               ),
-            ),
+              const SizedBox(height: 40),
 
-            const SizedBox(height: 16),
+              // Quick Access Buttons for things NOT in the bottom bar
+              _buildMenuButton(
+                context,
+                'Gerenciar Família',
+                Icons.people,
+                () => Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const MemberScreen()),
+                ),
+              ),
 
-            // Admin Only: Invite Button
-            profileAsync.when(
-              data: (profile) {
-                if (profile?.role == 'admin') {
-                  return SizedBox(
-                    width: 250,
-                    child: FilledButton.tonalIcon(
-                      onPressed: () {
-                        Navigator.push(
+              // Admin Only: Invite Button
+              profileAsync.when(
+                data: (profile) {
+                  if (profile?.role == 'admin') {
+                    return Padding(
+                      padding: const EdgeInsets.only(top: 16.0),
+                      child: _buildMenuButton(
+                        context,
+                        'Convites',
+                        Icons.vpn_key,
+                        () => Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (_) => const InvitationScreen(),
                           ),
-                        );
-                      },
-                      icon: const Icon(Icons.vpn_key),
-                      label: const Text('Gerenciar Convites'),
-                    ),
-                  );
-                }
-                return const SizedBox.shrink();
-              },
-              loading: () => const CircularProgressIndicator(),
-              error: (_, __) => const SizedBox.shrink(),
-            ),
-          ],
+                        ),
+                        isPrimary: true,
+                      ),
+                    );
+                  }
+                  return const SizedBox.shrink();
+                },
+                loading: () => const SizedBox.shrink(),
+                error: (_, _) => const SizedBox.shrink(),
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+
+  Widget _buildMenuButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onPressed, {
+    bool isPrimary = false,
+  }) {
+    return SizedBox(
+      width: 250,
+      height: 50,
+      child: isPrimary
+          ? FilledButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            )
+          : OutlinedButton.icon(
+              onPressed: onPressed,
+              icon: Icon(icon),
+              label: Text(label),
+            ),
     );
   }
 }

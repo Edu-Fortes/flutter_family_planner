@@ -98,7 +98,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
                   );
                 },
                 loading: () => const LinearProgressIndicator(),
-                error: (_, __) => const Text('Erro ao carregar membros'),
+                error: (_, _) => const Text('Erro ao carregar membros'),
               ),
               const SizedBox(height: 16),
 
@@ -154,7 +154,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
       lastDate: DateTime(2030),
     );
 
-    if (pickedDate != null) {
+    if (pickedDate != null && mounted) {
       // 2. If it is All Day, we STOP here (no time picker)
       if (_isAllDay) {
         setState(() {
@@ -182,7 +182,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
           initialTime: TimeOfDay.fromDateTime(isStart ? _startDate : _endDate),
         );
 
-        if (pickedTime != null) {
+        if (pickedTime != null && mounted) {
           setState(() {
             final newDate = DateTime(
               pickedDate.year,

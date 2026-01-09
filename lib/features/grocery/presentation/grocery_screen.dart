@@ -10,52 +10,24 @@ class GroceryScreen extends ConsumerStatefulWidget {
 }
 
 class _GroceryScreenState extends ConsumerState<GroceryScreen> {
-  final TextEditingController _textController = TextEditingController();
-  final FocusNode _focusNode = FocusNode(); // 1. Focus Node to control keyboard
-
-  String _selectedCategory = 'Geral';
+  String _activeFilter = 'Todos'; // Default filter
 
   final List<String> _categories = [
     'Geral',
-    'Produção',
-    'Laticínios',
-    'Carnes',
+    'Hortifruti',
+    'Bebidas',
+    'Carne',
     'Padaria',
     'Congelados',
-    'Produtos para casa',
+    'Limpeza',
   ];
-
-  @override
-  void dispose() {
-    _textController.dispose();
-    _focusNode.dispose(); // Don't forget to dispose it!
-    super.dispose();
-  }
-
-  void _addItem() {
-    if (_textController.text.trim().isEmpty) return;
-
-    ref
-        .read(groceryRepositoryProvider)
-        .addItem(_textController.text.trim(), _selectedCategory);
-
-    _textController.clear();
-
-    // 2. Reset category but KEEP FOCUS for rapid entry
-    setState(() {
-      _selectedCategory = 'Geral';
-    });
-    _focusNode.requestFocus();
-  }
 
   Future<void> _confirmClear() async {
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Limpar itens completos?'),
-        content: const Text(
-          'Isso ira apagar todos os itens marcados como completos.',
-        ),
+        title: const Text('Excluir Concluídos?'),
+        content: const Text('Isso removerá todos os itens marcados.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -63,7 +35,7 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Limpar'),
+            child: const Text('Excluir'),
           ),
         ],
       ),
@@ -74,189 +46,348 @@ class _GroceryScreenState extends ConsumerState<GroceryScreen> {
     }
   }
 
+  void _showAddItemSheet(BuildContext context) {
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (context) => _AddItemSheet(categories: _categories),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final groceryAsync = ref.watch(groceryStreamProvider);
+    final allItems = groceryAsync.asData?.value ?? [];
+
+    // --- 1. CALCULATE COUNTS ---
+    final Map<String, int> totalCounts = {};
+    final Map<String, int> cartCounts = {};
+
+    totalCounts['Todos'] = allItems.length;
+    cartCounts['Todos'] = allItems.where((i) => i.isCompleted).length;
+
+    for (var cat in _categories) {
+      final catItems = allItems.where((i) => i.category == cat);
+      totalCounts[cat] = catItems.length;
+      cartCounts[cat] = catItems.where((i) => i.isCompleted).length;
+    }
+
+    // --- 2. PREPARE SUBTITLE TEXT ---
+    String subtitleText;
+    if (_activeFilter == 'Todos') {
+      final total = totalCounts['Todos'] ?? 0;
+      final done = cartCounts['Todos'] ?? 0;
+      subtitleText = 'Total: $done/$total comprados';
+    } else {
+      final total = totalCounts[_activeFilter] ?? 0;
+      final done = cartCounts[_activeFilter] ?? 0;
+      subtitleText = 'Filtro: $_activeFilter ($done/$total)';
+    }
+
+    // --- 3. FILTER THE LIST ---
+    final visibleItems = _activeFilter == 'Todos'
+        ? allItems
+        : allItems.where((i) => i.category == _activeFilter).toList();
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Lista de Compras'),
+        // --- NEW: Title with Dynamic Counter ---
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text('Lista de Compras'),
+            Text(
+              subtitleText, // Shows "Filtro: Carne (2/5)"
+              style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: Theme.of(
+                  context,
+                ).colorScheme.onSurface.withValues(alpha: 0.7),
+              ),
+            ),
+          ],
+        ),
         actions: [
+          // Filter Button
+          PopupMenuButton<String>(
+            icon: const Icon(Icons.filter_list),
+            tooltip: 'Filtrar por Categoria',
+            onSelected: (String value) {
+              setState(() {
+                _activeFilter = value;
+              });
+            },
+            itemBuilder: (BuildContext context) {
+              final options = ['Todos', ..._categories];
+
+              return options
+                  .map((cat) {
+                    final count = totalCounts[cat] ?? 0;
+                    final completed = cartCounts[cat] ?? 0;
+
+                    // Hide empty categories from menu (unless active)
+                    if (count == 0 && cat != 'Todos' && cat != _activeFilter) {
+                      return null;
+                    }
+
+                    return PopupMenuItem<String>(
+                      value: cat,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(cat),
+                          if (count > 0)
+                            Text(
+                              '($completed/$count)',
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.primary,
+                                fontSize: 12,
+                              ),
+                            ),
+                        ],
+                      ),
+                    );
+                  })
+                  .whereType<PopupMenuItem<String>>()
+                  .toList();
+            },
+          ),
+
+          // Clear Button
           IconButton(
-            icon: const Icon(Icons.delete_sweep),
-            tooltip: 'Limpar Itens Completos',
+            icon: const Icon(Icons.delete_sweep_outlined),
+            tooltip: 'Excluir Concluídos',
             onPressed: _confirmClear,
           ),
         ],
       ),
+
+      floatingActionButton: FloatingActionButton.extended(
+        onPressed: () => _showAddItemSheet(context),
+        label: const Text('Adicionar'),
+        icon: const Icon(Icons.add_shopping_cart),
+      ),
+
       body: Column(
         children: [
+          // --- MAIN LIST ---
           Expanded(
-            child: groceryAsync.when(
-              loading: () => const Center(child: CircularProgressIndicator()),
-              error: (err, _) => Center(child: Text('Error: $err')),
-              data: (items) {
-                if (items.isEmpty) {
-                  return const Center(
+            child: visibleItems.isEmpty
+                ? Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
                         Icon(
-                          Icons.shopping_basket_outlined,
-                          size: 64,
-                          color: Colors.grey,
+                          Icons.filter_list_off,
+                          size: 48,
+                          color: Colors.grey.withValues(alpha: 0.5),
                         ),
-                        SizedBox(height: 16),
-                        Text('Sua lista está vazia!'),
+                        const SizedBox(height: 16),
+                        Text(
+                          _activeFilter == 'Todos'
+                              ? 'Lista vazia!'
+                              : 'Nenhum item de $_activeFilter.',
+                          style: const TextStyle(color: Colors.grey),
+                        ),
                       ],
                     ),
-                  );
-                }
-
-                return ListView.builder(
-                  padding: const EdgeInsets.only(
-                    bottom: 140,
-                  ), // Increased padding for taller input area
-                  itemCount: items.length,
-                  itemBuilder: (context, index) {
-                    final item = items[index];
-                    return Dismissible(
-                      key: Key(item.id),
-                      background: Container(
-                        color: Colors.red,
-                        alignment: Alignment.centerRight,
-                        padding: const EdgeInsets.only(right: 20),
-                        child: const Icon(Icons.delete, color: Colors.white),
-                      ),
-                      direction: DismissDirection.endToStart,
-                      onDismissed: (_) {
-                        ref.read(groceryRepositoryProvider).deleteItem(item.id);
-                      },
-                      child: CheckboxListTile(
-                        title: Text(
-                          item.name,
-                          style: TextStyle(
-                            decoration: item.isCompleted
-                                ? TextDecoration.lineThrough
-                                : null,
-                            color: item.isCompleted ? Colors.grey : null,
-                          ),
+                  )
+                : ListView.separated(
+                    padding: const EdgeInsets.only(bottom: 100),
+                    itemCount: visibleItems.length,
+                    separatorBuilder: (_, _) => const Divider(height: 1),
+                    itemBuilder: (context, index) {
+                      final item = visibleItems[index];
+                      return Dismissible(
+                        key: Key(item.id),
+                        background: Container(
+                          color: Colors.red,
+                          alignment: Alignment.centerRight,
+                          padding: const EdgeInsets.only(right: 20),
+                          child: const Icon(Icons.delete, color: Colors.white),
                         ),
-                        subtitle: Text(
-                          item.category,
-                          style: TextStyle(
-                            fontSize: 12,
-                            color: Theme.of(context).colorScheme.primary,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        value: item.isCompleted,
-                        onChanged: (val) {
+                        direction: DismissDirection.endToStart,
+                        onDismissed: (_) {
                           ref
                               .read(groceryRepositoryProvider)
-                              .toggleStatus(item.id, item.isCompleted);
+                              .deleteItem(item.id);
                         },
-                      ),
-                    );
-                  },
+                        child: CheckboxListTile(
+                          title: Text(
+                            item.name,
+                            style: TextStyle(
+                              decoration: item.isCompleted
+                                  ? TextDecoration.lineThrough
+                                  : null,
+                              color: item.isCompleted ? Colors.grey : null,
+                            ),
+                          ),
+                          // Only show subtitle if viewing "Todos"
+                          subtitle: _activeFilter == 'Todos'
+                              ? Text(
+                                  item.category,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: Theme.of(
+                                      context,
+                                    ).colorScheme.primary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                )
+                              : null,
+                          value: item.isCompleted,
+                          onChanged: (val) {
+                            ref
+                                .read(groceryRepositoryProvider)
+                                .toggleStatus(item.id, item.isCompleted);
+                          },
+                        ),
+                      );
+                    },
+                  ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// NEW WIDGET: The Bottom Sheet Input (Continuous Entry Version)
+// -----------------------------------------------------------------------------
+class _AddItemSheet extends ConsumerStatefulWidget {
+  final List<String> categories;
+  const _AddItemSheet({required this.categories});
+
+  @override
+  ConsumerState<_AddItemSheet> createState() => _AddItemSheetState();
+}
+
+class _AddItemSheetState extends ConsumerState<_AddItemSheet> {
+  final _controller = TextEditingController();
+
+  // 1. ADD FOCUS NODE
+  // This allows us to keep the keyboard open after submitting
+  final FocusNode _focusNode = FocusNode();
+
+  String _selectedCategory = 'Geral';
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    _focusNode.dispose(); // Don't forget to dispose!
+    super.dispose();
+  }
+
+  void _submit() {
+    if (_controller.text.trim().isEmpty) return;
+
+    ref
+        .read(groceryRepositoryProvider)
+        .addItem(_controller.text.trim(), _selectedCategory);
+
+    // 2. CONTINUOUS ENTRY LOGIC
+    _controller.clear(); // Clear the text
+    _focusNode.requestFocus(); // Keep the keyboard up!
+
+    // We REMOVED Navigator.pop(context) here so the sheet stays open.
+    // To close it, the user simply taps outside the sheet or swipes it down.
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final keyboardPadding = MediaQuery.of(context).viewInsets.bottom;
+
+    return Padding(
+      padding: EdgeInsets.only(
+        left: 20,
+        right: 20,
+        top: 20,
+        bottom: keyboardPadding + 20,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          // Drag Handle
+          Center(
+            child: Container(
+              width: 40,
+              height: 4,
+              decoration: BoxDecoration(
+                color: Colors.grey[300],
+                borderRadius: BorderRadius.circular(2),
+              ),
+            ),
+          ),
+          const SizedBox(height: 20),
+
+          // Header with "Done" button (Optional, but nice since we removed auto-close)
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Novo Item', style: Theme.of(context).textTheme.titleLarge),
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text("Concluir"),
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+
+          // Input Field
+          TextField(
+            controller: _controller,
+            focusNode: _focusNode, // Attach the focus node
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+            textInputAction: TextInputAction
+                .go, // "Go" or "Next" feels right for rapid entry
+            decoration: const InputDecoration(
+              hintText: 'O que falta na despensa?',
+              border: OutlineInputBorder(),
+              prefixIcon: Icon(Icons.add),
+            ),
+            onSubmitted: (_) => _submit(),
+          ),
+          const SizedBox(height: 16),
+
+          // Category Selector
+          Text("Categoria:", style: Theme.of(context).textTheme.bodyMedium),
+          const SizedBox(height: 8),
+
+          // 3. HORIZONTAL SCROLL FIX
+          SingleChildScrollView(
+            scrollDirection: Axis.horizontal, // Enables sliding
+            child: Row(
+              children: widget.categories.map((cat) {
+                return Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: ChoiceChip(
+                    label: Text(cat),
+                    selected: _selectedCategory == cat,
+                    onSelected: (selected) {
+                      if (selected) setState(() => _selectedCategory = cat);
+                    },
+                    visualDensity: VisualDensity.compact,
+                  ),
                 );
-              },
+              }).toList(),
             ),
           ),
 
-          // --- REFACTORED INPUT AREA ---
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Theme.of(context).cardColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withValues(
-                    alpha: 0.1,
-                  ), // Updated for newer Flutter
-                  blurRadius: 10,
-                  offset: const Offset(0, -5),
-                ),
-              ],
-            ),
-            child: SafeArea(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // 3. Categories WRAP (Replaces ScrollView + Row)
-                  // This ensures all chips are visible by flowing to next line
-                  Wrap(
-                    spacing: 8.0, // Gap between chips horizontally
-                    runSpacing: 0.0, // Gap between lines vertically
-                    children: _categories.map((category) {
-                      final isSelected = _selectedCategory == category;
-                      return ChoiceChip(
-                        label: Text(category),
-                        selected: isSelected,
-                        onSelected: (selected) {
-                          if (selected) {
-                            setState(() => _selectedCategory = category);
-                          }
-                        },
-                        selectedColor: Theme.of(
-                          context,
-                        ).colorScheme.primaryContainer,
-                        labelStyle: TextStyle(
-                          color: isSelected
-                              ? Theme.of(context).colorScheme.onPrimaryContainer
-                              : null,
-                          fontSize: 12, // Slightly smaller text to fit more
-                        ),
-                        checkmarkColor: Theme.of(
-                          context,
-                        ).colorScheme.onPrimaryContainer,
-                        // Make chips slightly more compact
-                        visualDensity: VisualDensity.compact,
-                      );
-                    }).toList(),
-                  ),
+          const SizedBox(height: 24),
 
-                  const SizedBox(height: 12),
-
-                  Row(
-                    children: [
-                      Expanded(
-                        child: TextField(
-                          controller: _textController,
-                          focusNode: _focusNode, // Attach the FocusNode
-                          textCapitalization: TextCapitalization.sentences,
-                          // 4. Change keyboard action to "Go" or "Next"
-                          textInputAction: TextInputAction.go,
-                          decoration: const InputDecoration(
-                            hintText: 'Adicione um item...',
-                            border: OutlineInputBorder(),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16,
-                              vertical: 12,
-                            ),
-                          ),
-                          onSubmitted: (_) => _addItem(),
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-
-                      IconButton.filled(
-                        onPressed: _addItem,
-                        icon: const Icon(Icons.add),
-                        iconSize: 28,
-                        style: IconButton.styleFrom(
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                          padding: const EdgeInsets.all(12),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
+          // Submit Button
+          FilledButton.icon(
+            onPressed: _submit,
+            icon: const Icon(Icons.add_circle_outline),
+            label: const Text(
+              'Adicionar Outro',
+            ), // Changed text to imply continuity
+            style: FilledButton.styleFrom(padding: const EdgeInsets.all(16)),
           ),
         ],
       ),
