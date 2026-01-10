@@ -40,6 +40,7 @@ class CalendarScreen extends ConsumerWidget {
                 showTodayButton: true,
                 showNavigationArrow: true,
                 dataSource: _FamilyDataSource(events, members),
+                appointmentTimeTextFormat: 'HH:mm',
                 monthViewSettings: const MonthViewSettings(
                   showAgenda: true,
                   appointmentDisplayMode:
