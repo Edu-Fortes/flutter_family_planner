@@ -22,7 +22,7 @@ class PrioritySummaryWidget extends ConsumerWidget {
                 const Icon(Icons.priority_high, color: Colors.red),
                 const SizedBox(width: 8),
                 Text(
-                  'Top Priorities',
+                  'Prioridade Tarefas',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
               ],
@@ -34,7 +34,7 @@ class PrioritySummaryWidget extends ConsumerWidget {
                 error: (_, _) => const Text('Error'),
                 data: (tasks) {
                   if (tasks.isEmpty) {
-                    return const Center(child: Text("All Clear!"));
+                    return const Center(child: Text("Sem tarefas!"));
                   }
 
                   // Take only the top 5 for the summary view

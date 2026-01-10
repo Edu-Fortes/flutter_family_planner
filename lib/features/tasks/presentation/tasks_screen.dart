@@ -10,10 +10,10 @@ class TasksScreen extends ConsumerWidget {
     final tasksAsync = ref.watch(priorityTasksProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Priority Tasks')),
+      appBar: AppBar(title: const Text('Prioridade Tarefas')),
       floatingActionButton: FloatingActionButton.extended(
         onPressed: () => _showAddTaskDialog(context, ref),
-        label: const Text('New Task'),
+        label: const Text('Nova Tarefa'),
         icon: const Icon(Icons.add),
       ),
       body: tasksAsync.when(
@@ -31,7 +31,7 @@ class TasksScreen extends ConsumerWidget {
                     color: Colors.grey,
                   ),
                   SizedBox(height: 16),
-                  Text('No tasks! Enjoy your day.'),
+                  Text('Sem tarefas! Aproveite seu dia.'),
                 ],
               ),
             );
@@ -58,7 +58,9 @@ class TasksScreen extends ConsumerWidget {
                     style: const TextStyle(fontWeight: FontWeight.bold),
                   ),
                   subtitle: Text(
-                    task.priority == 1 ? 'High Priority' : 'Normal Priority',
+                    task.priority == 1
+                        ? 'Alta Prioridade'
+                        : 'Prioridade Normal',
                   ),
                   trailing: IconButton(
                     icon: const Icon(Icons.check_circle_outline),
@@ -93,7 +95,7 @@ class TasksScreen extends ConsumerWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('New Priority Task'),
+          title: const Text('Nova Prioridade Tarefa'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -101,12 +103,12 @@ class TasksScreen extends ConsumerWidget {
                 controller: controller,
                 autofocus: true,
                 decoration: const InputDecoration(
-                  labelText: 'Task Title',
+                  labelText: 'Título da Tarefa',
                   border: OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 16),
-              const Text('Priority Level:'),
+              const Text('Nível de Prioridade:'),
               const SizedBox(height: 8),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -114,10 +116,10 @@ class TasksScreen extends ConsumerWidget {
                   return ChoiceChip(
                     label: Text(
                       p == 1
-                          ? 'High'
+                          ? 'Alta'
                           : p == 2
-                          ? 'Med'
-                          : 'Low',
+                          ? 'Média'
+                          : 'Baixa',
                     ),
                     selected: selectedPriority == p,
                     onSelected: (val) {
@@ -132,7 +134,7 @@ class TasksScreen extends ConsumerWidget {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
-              child: const Text('Cancel'),
+              child: const Text('Cancelar'),
             ),
             FilledButton(
               onPressed: () {
@@ -143,7 +145,7 @@ class TasksScreen extends ConsumerWidget {
                   Navigator.pop(ctx);
                 }
               },
-              child: const Text('Save'),
+              child: const Text('Salvar'),
             ),
           ],
         ),

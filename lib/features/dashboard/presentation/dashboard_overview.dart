@@ -13,13 +13,13 @@ class DashboardOverview extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final userEmail =
-        Supabase.instance.client.auth.currentUser?.email ?? 'Family Member';
+        Supabase.instance.client.auth.currentUser?.email ?? 'Família';
 
     // Calculate Greeting based on time
     final hour = DateTime.now().hour;
-    String greeting = 'Good Morning';
-    if (hour > 12) greeting = 'Good Afternoon';
-    if (hour > 18) greeting = 'Good Evening';
+    String greeting = 'Bom dia';
+    if (hour > 12) greeting = 'Boa tarde';
+    if (hour > 18) greeting = 'Boa noite';
 
     return Padding(
       padding: const EdgeInsets.all(24.0),

@@ -64,7 +64,7 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
               const SizedBox(height: 16),
               if (alert.source != null) ...[
                 Text(
-                  'Source: ${alert.source}',
+                  'Fonte: ${alert.source}',
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
                     fontStyle: FontStyle.italic,
                     color: Colors.grey[600],
@@ -73,7 +73,7 @@ class _WeatherWidgetState extends ConsumerState<WeatherWidget> {
                 const SizedBox(height: 12),
               ],
               Text(
-                'Validity: ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.start)} - ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.end)}',
+                'Validade: ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.start)} - ${DateFormat('dd/MM/yyyy HH:mm', 'pt-BR').format(alert.end)}',
                 style: Theme.of(
                   context,
                 ).textTheme.bodySmall?.copyWith(color: Colors.grey[600]),
