@@ -69,7 +69,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   destinations: const [
                     NavigationRailDestination(
                       icon: Icon(Icons.dashboard),
-                      label: Text('Home'),
+                      label: Text('Painel'),
                     ),
                     NavigationRailDestination(
                       icon: Icon(Icons.check_circle_outlined),
@@ -166,7 +166,7 @@ class _MobileMenuScreen extends ConsumerWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Family Planner'),
+        title: const Text('Planejamento Familiar'),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
