@@ -17,9 +17,9 @@ class DashboardOverview extends StatelessWidget {
 
     // Calculate Greeting based on time
     final hour = DateTime.now().hour;
-    String greeting = 'Good Morning';
-    if (hour > 12) greeting = 'Good Afternoon';
-    if (hour > 18) greeting = 'Good Evening';
+    String greeting = 'Bom dia';
+    if (hour > 12) greeting = 'Boa tarde';
+    if (hour > 18) greeting = 'Boa noite';
 
     return Padding(
       padding: const EdgeInsets.all(24.0),
