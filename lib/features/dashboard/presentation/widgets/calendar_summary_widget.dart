@@ -46,6 +46,7 @@ class CalendarSummaryWidget extends ConsumerWidget {
               ),
             ),
 
+            appointmentTimeTextFormat: 'HH:mm',
             monthViewSettings: MonthViewSettings(
               appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
               showAgenda: true,
