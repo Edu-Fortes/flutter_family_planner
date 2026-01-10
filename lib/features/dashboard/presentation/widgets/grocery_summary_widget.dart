@@ -1,4 +1,3 @@
-// lib/features/dashboard/presentation/widgets/grocery_summary_widget.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/dashboard_repository.dart';
@@ -33,17 +32,17 @@ class GrocerySummaryWidget extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
-                  'Grocery List',
+                  'Lista de Compras',
                   style: Theme.of(context).textTheme.titleMedium,
                 ),
                 countAsync.when(
                   data: (count) => Text(
-                    '$count items needed',
+                    '$count itens necessários',
                     style: Theme.of(context).textTheme.headlineSmall?.copyWith(
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  loading: () => const Text('Loading...'),
+                  loading: () => const Text('Carregando...'),
                   error: (_, _) => const Text('--'),
                 ),
               ],
