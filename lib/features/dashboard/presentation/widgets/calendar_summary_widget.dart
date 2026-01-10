@@ -1,3 +1,4 @@
+import 'dart:async'; // Required for Timer
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
@@ -6,11 +7,59 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import '../../../calendar/data/calendar_repository.dart';
 import '../../../members/data/member_repository.dart';
 
-class CalendarSummaryWidget extends ConsumerWidget {
+class CalendarSummaryWidget extends ConsumerStatefulWidget {
   const CalendarSummaryWidget({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<CalendarSummaryWidget> createState() =>
+      _CalendarSummaryWidgetState();
+}
+
+class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
+  // 1. Controller to manipulate the calendar programmatically
+  final CalendarController _calendarController = CalendarController();
+  Timer? _midnightTimer;
+
+  @override
+  void initState() {
+    super.initState();
+    // 2. Set initial selection to Today
+    _calendarController.selectedDate = DateTime.now();
+
+    // 3. Start the loop to update at midnight
+    _scheduleMidnightUpdate();
+  }
+
+  @override
+  void dispose() {
+    _midnightTimer?.cancel();
+    _calendarController.dispose();
+    super.dispose();
+  }
+
+  // Calculates time until next midnight and sets a timer
+  void _scheduleMidnightUpdate() {
+    final now = DateTime.now();
+    // Get the very beginning of "Tomorrow"
+    final tomorrow = DateTime(now.year, now.month, now.day + 1);
+    // Add 1 second buffer to ensure we are definitely in the new day
+    final duration = tomorrow.difference(now) + const Duration(seconds: 1);
+
+    _midnightTimer = Timer(duration, () {
+      // 4. Update state when timer fires
+      setState(() {
+        final newNow = DateTime.now();
+        _calendarController.selectedDate = newNow;
+        _calendarController.displayDate =
+            newNow; // Also moves the month view if needed
+      });
+      // Reschedule for the next night
+      _scheduleMidnightUpdate();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     // Watch BOTH streams
     final eventsAsync = ref.watch(eventsStreamProvider);
     final membersAsync = ref.watch(membersStreamProvider);
@@ -22,10 +71,12 @@ class CalendarSummaryWidget extends ConsumerWidget {
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => const Center(child: Text('Error loading events')),
         data: (events) {
-          // ✅ FIX: Use .asData?.value instead of .valueOrNull
           final members = membersAsync.asData?.value ?? [];
 
           return SfCalendar(
+            // 5. Attach the controller
+            controller: _calendarController,
+
             view: CalendarView.month,
             dataSource: _DashboardDataSource(events, members),
 
@@ -86,7 +137,7 @@ class CalendarSummaryWidget extends ConsumerWidget {
   }
 }
 
-// --- DATA SOURCE BRIDGE ---
+// --- DATA SOURCE BRIDGE (Unchanged) ---
 class _DashboardDataSource extends CalendarDataSource {
   final List<FamilyMember> members;
 
