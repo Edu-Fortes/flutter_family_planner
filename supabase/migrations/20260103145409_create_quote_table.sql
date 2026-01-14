@@ -18,7 +18,9 @@ using (true);
 -- This function calculates which row to pick based on the current day of the year.
 -- This guarantees the same quote for everyone, changing only at midnight.
 create or replace function get_daily_quote()
-returns setof public.daily_quotes as $$
+returns setof public.daily_quotes
+set search_path = ''
+as $$
 declare
   count_quotes int;
   day_of_year int;

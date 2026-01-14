@@ -12,7 +12,9 @@ create table public.family_members (
 -- 2. SYNC TRIGGER (Profile -> Member)
 -- When a user registers, automatically create a Member entry for them
 create or replace function public.handle_new_member_sync()
-returns trigger as $$
+returns trigger
+set search_path = ''
+as $$
 begin
   insert into public.family_members (name, profile_id, color)
   values (new.username, new.id, '#9C27B0'); -- Purple for Adults
@@ -41,5 +43,4 @@ alter table public.family_events add column assigned_to uuid references public.f
 alter publication supabase_realtime add table public.family_members;
 alter table public.family_members enable row level security;
 
-create policy "Family manage members" on public.family_members
-  for all using (auth.role() = 'authenticated');
+-- Note: RLS policy for family_members is defined in migration 20260114024724_enhance_tables_for_profile_edit.sql
