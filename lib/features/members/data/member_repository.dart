@@ -1,8 +1,6 @@
-import 'dart:async'; // Needed for StreamTransformer
 import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:rxdart/rxdart.dart'; // OPTIONAL: Or we do it with Riverpod only (shown below)
 
 // --- MODEL ---
 class FamilyMember {
@@ -22,6 +20,7 @@ class FamilyMember {
     required this.isVirtual,
   });
 
+  // Helper: Color conversion
   int get colorValue {
     try {
       return int.parse(color.replaceFirst('#', 'FF'), radix: 16);
@@ -34,6 +33,7 @@ class FamilyMember {
   factory FamilyMember.fromProfile(Map<String, dynamic> json) {
     return FamilyMember(
       id: json['id'],
+      // Prefer display_name, fallback to username
       name: json['display_name'] ?? json['username'] ?? 'User',
       color: json['color'] ?? '#2196F3',
       avatarUrl: json['avatar_url'],
@@ -60,7 +60,7 @@ class MemberRepository {
   final SupabaseClient _client;
   MemberRepository(this._client);
 
-  // 1. Stream REAL Users
+  // 1. Stream REAL Users (Profiles)
   Stream<List<FamilyMember>> getRealMembersStream() {
     return _client
         .from('profiles')
@@ -80,7 +80,19 @@ class MemberRepository {
         );
   }
 
-  // 3. Update Virtual Member (Writes to Table)
+  // 3. Add Virtual Member
+  Future<void> addVirtualMember(String name, String color) async {
+    final user = _client.auth.currentUser;
+    if (user == null) return;
+    await _client.from('family_members').insert({
+      'name': name,
+      'color': color,
+      'is_child': true,
+      'created_by': user.id,
+    });
+  }
+
+  // 4. Update Virtual Member
   Future<void> updateVirtualMember({
     required String memberId,
     required String name,
@@ -93,19 +105,7 @@ class MemberRepository {
         .eq('id', memberId);
   }
 
-  // 4. Add Virtual Member
-  Future<void> addVirtualMember(String name, String color) async {
-    final user = _client.auth.currentUser;
-    if (user == null) return;
-    await _client.from('family_members').insert({
-      'name': name,
-      'color': color,
-      'is_child': true,
-      'created_by': user.id,
-    });
-  }
-
-  // 5. Upload Avatar
+  // 5. Upload Child Avatar
   Future<String?> uploadMemberAvatar(File imageFile, String memberId) async {
     final fileExt = imageFile.path.split('.').last;
     final fileName =
@@ -124,7 +124,7 @@ class MemberRepository {
     }
   }
 
-  // 6. Delete
+  // 6. Delete Virtual Member
   Future<void> deleteMember(String memberId) async {
     await _client.from('family_members').delete().eq('id', memberId);
   }
@@ -134,60 +134,43 @@ final memberRepositoryProvider = Provider(
   (ref) => MemberRepository(Supabase.instance.client),
 );
 
-// --- THE PROVIDER MIXER ---
-// This watches BOTH streams and combines them.
-// Any change in EITHER table triggers a rebuild.
-final membersStreamProvider = StreamProvider<List<FamilyMember>>((ref) {
-  final repo = ref.watch(memberRepositoryProvider);
+// --- THE PROVIDER MIXER (No StreamGroup needed!) ---
 
-  // Combine streams using RxDart would be cleaner, but we can use a simple simpler merge approach here
-  // or just use Riverpod's ability to watch streams.
-  // For simplicity without adding RxDart package, we return a generator logic or use a merge.
-
-  // Best Pure Flutter way without RxDart:
-  final realStream = repo.getRealMembersStream();
-  final virtualStream = repo.getVirtualMembersStream();
-
-  // CombineLatest implementation helper
-  return StreamGroup.merge([realStream, virtualStream])
-  // This part is tricky without RxDart.
-  // Let's use a simpler Riverpod pattern: separate providers.
-  // See below for the cleaner implementation.
-  .map((_) => []); // Placeholder, see "Correct Provider" below.
+// 1. Watch Real Users
+final realMembersProvider = StreamProvider((ref) {
+  return ref.watch(memberRepositoryProvider).getRealMembersStream();
 });
 
-// --- CORRECT PROVIDER IMPLEMENTATION ---
-// We split them to make it robust.
+// 2. Watch Virtual Users
+final virtualMembersProvider = StreamProvider((ref) {
+  return ref.watch(memberRepositoryProvider).getVirtualMembersStream();
+});
 
-final realMembersProvider = StreamProvider(
-  (ref) => ref.watch(memberRepositoryProvider).getRealMembersStream(),
-);
-final virtualMembersProvider = StreamProvider(
-  (ref) => ref.watch(memberRepositoryProvider).getVirtualMembersStream(),
-);
-
+// 3. Merge them into one list
 final allMembersProvider = Provider<AsyncValue<List<FamilyMember>>>((ref) {
   final realAsync = ref.watch(realMembersProvider);
   final virtualAsync = ref.watch(virtualMembersProvider);
 
-  // If either is loading, return loading
+  // If either is loading, the whole list is loading
   if (realAsync.isLoading || virtualAsync.isLoading) {
     return const AsyncValue.loading();
   }
 
   // If error
-  if (realAsync.hasError)
+  if (realAsync.hasError) {
     return AsyncValue.error(realAsync.error!, realAsync.stackTrace!);
-  if (virtualAsync.hasError)
+  }
+  if (virtualAsync.hasError) {
     return AsyncValue.error(virtualAsync.error!, virtualAsync.stackTrace!);
+  }
 
-  // Merge
+  // Merge Data
   final real = realAsync.value ?? [];
   final virtual = virtualAsync.value ?? [];
 
   final combined = [...real, ...virtual];
 
-  // Sort alphabetically
+  // Sort alphabetically by name
   combined.sort((a, b) => a.name.compareTo(b.name));
 
   return AsyncValue.data(combined);

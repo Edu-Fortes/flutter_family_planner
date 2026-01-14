@@ -62,7 +62,7 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
   Widget build(BuildContext context) {
     // Watch BOTH streams
     final eventsAsync = ref.watch(eventsStreamProvider);
-    final membersAsync = ref.watch(membersStreamProvider);
+    final membersAsync = ref.watch(allMembersProvider);
 
     return Card(
       elevation: 0,

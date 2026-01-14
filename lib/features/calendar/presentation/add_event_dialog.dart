@@ -46,7 +46,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
 
   @override
   Widget build(BuildContext context) {
-    final membersAsync = ref.watch(membersStreamProvider);
+    final membersAsync = ref.watch(allMembersProvider);
     final isEditing = widget.eventToEdit != null;
 
     // Define formats based on the toggle

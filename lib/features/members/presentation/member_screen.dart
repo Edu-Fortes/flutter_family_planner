@@ -1,16 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
-import 'edit_member_dialog.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../profile/data/profile_repository.dart';
 import '../data/member_repository.dart';
+import 'edit_family_member_screen.dart';
+import '../../profile/presentation/edit_profile_screen.dart';
 
 class MemberScreen extends ConsumerWidget {
   const MemberScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final membersAsync = ref.watch(membersStreamProvider);
+    // 1. WATCH THE UNIFIED MIXER PROVIDER
+    final membersAsync = ref.watch(allMembersProvider); // <--- MIXER
     final profileAsync = ref.watch(profileProvider);
 
     return Scaffold(
@@ -30,56 +34,83 @@ class MemberScreen extends ConsumerWidget {
             itemBuilder: (context, index) {
               final member = members[index];
 
-              // Helper to check if current user is admin
-              // (We can get this from profileAsync.value or check locally)
-              final isCurrentUserAdmin = profileAsync.value?.role == 'admin';
-
               return ListTile(
                 leading: CircleAvatar(
+                  backgroundImage: member.avatarUrl != null
+                      ? NetworkImage(member.avatarUrl!)
+                      : null,
                   backgroundColor: Color(member.colorValue),
-                  child: Text(
-                    member.name.isNotEmpty ? member.name[0].toUpperCase() : '?',
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+                  child: member.avatarUrl == null
+                      ? Text(
+                          member.name.isNotEmpty
+                              ? member.name[0].toUpperCase()
+                              : '?',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        )
+                      : null,
                 ),
                 title: Text(
                   member.name,
                   style: const TextStyle(fontWeight: FontWeight.w600),
                 ),
                 subtitle: Text(
-                  member.isChild
+                  member.isVirtual
                       ? 'Criança (Conta Virtual)'
-                      : 'Membro Completo (Usuário do App)',
+                      : 'Usuário do App',
                   style: TextStyle(
-                    color: member.isChild ? Colors.orange : Colors.grey,
+                    color: member.isVirtual ? Colors.orange : Colors.grey,
                   ),
                 ),
                 trailing: const Icon(Icons.edit, size: 16, color: Colors.grey),
-                // Open Edit Dialog
+
+                // --- ROUTING LOGIC ---
                 onTap: () {
-                  showDialog(
-                    context: context,
-                    builder: (_) => EditMemberDialog(
-                      member: member,
-                      isAdmin: isCurrentUserAdmin,
-                    ),
-                  );
+                  final currentUserId =
+                      Supabase.instance.client.auth.currentUser?.id;
+
+                  // 1. IF CHILD -> EditFamilyMemberScreen
+                  if (member.isVirtual) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => EditFamilyMemberScreen(member: member),
+                      ),
+                    );
+                  }
+                  // 2. IF ME -> EditProfileScreen
+                  else if (member.profileId == currentUserId) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const EditProfileScreen(),
+                      ),
+                    );
+                  }
+                  // 3. IF OTHER ADULT -> Block
+                  else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                          'Você só pode editar seu próprio perfil.',
+                        ),
+                      ),
+                    );
+                  }
                 },
               );
             },
           );
         },
       ),
-      // Only Admins see the Floating Action Button
       floatingActionButton: profileAsync.when(
         data: (profile) => profile?.role == 'admin'
             ? FloatingActionButton.extended(
                 onPressed: () => _showAddMemberDialog(context, ref),
                 icon: const Icon(Icons.add),
-                label: const Text('Adicionar Membro'),
+                label: const Text('Adicionar Criança'),
               )
             : null,
         loading: () => null,
@@ -94,38 +125,22 @@ class MemberScreen extends ConsumerWidget {
 
     showDialog(
       context: context,
-      builder: (dialogContext) => StatefulBuilder(
+      builder: (context) => StatefulBuilder(
         builder: (context, setState) {
           return AlertDialog(
-            title: const Text('Adicionar Membro da Família'),
+            title: const Text('Adicionar Criança'),
             content: SingleChildScrollView(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Crie um perfil para uma criança ou membro da família que não possui uma conta de email.',
-                    style: TextStyle(fontSize: 12, color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
                       labelText: 'Nome',
-                      hintText: 'ex.: Junior',
                       border: OutlineInputBorder(),
-                      prefixIcon: Icon(Icons.person_outline),
                     ),
                   ),
-                  const SizedBox(height: 24),
-                  const Text(
-                    'Atribuir Cor:',
-                    style: TextStyle(fontWeight: FontWeight.bold),
-                  ),
-                  const SizedBox(height: 8),
-
-                  // FIX: Removed custom layoutBuilder.
-                  // The default layout is already a nice grid.
+                  const SizedBox(height: 16),
                   BlockPicker(
                     pickerColor: selectedColor,
                     availableColors: const [
@@ -134,16 +149,12 @@ class MemberScreen extends ConsumerWidget {
                       Colors.purple,
                       Colors.teal,
                       Colors.green,
-                      Colors.redAccent,
                       Colors.blueAccent,
                       Colors.indigo,
                       Colors.brown,
-                      Colors.amber,
                     ],
-                    // We remove the layoutBuilder entirely to avoid the type errors.
-                    onColorChanged: (color) {
-                      setState(() => selectedColor = color);
-                    },
+                    onColorChanged: (color) =>
+                        setState(() => selectedColor = color),
                   ),
                 ],
               ),
@@ -156,9 +167,6 @@ class MemberScreen extends ConsumerWidget {
               ElevatedButton(
                 onPressed: () async {
                   if (nameController.text.isEmpty) return;
-
-                  // FIX: Updated logic to convert color to Hex String safely
-                  // We treat the integer value as unsigned to ensure correct hex string
                   final colorInt = selectedColor.toARGB32();
                   final hex =
                       '#${colorInt.toRadixString(16).padLeft(8, '0').substring(2).toUpperCase()}';
@@ -166,10 +174,9 @@ class MemberScreen extends ConsumerWidget {
                   await ref
                       .read(memberRepositoryProvider)
                       .addVirtualMember(nameController.text.trim(), hex);
-
                   if (context.mounted) Navigator.pop(context);
                 },
-                child: const Text('Adicionar Membro'),
+                child: const Text('Adicionar'),
               ),
             ],
           );

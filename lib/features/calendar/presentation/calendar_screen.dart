@@ -12,7 +12,7 @@ class CalendarScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     // 1. Watch BOTH streams
     final eventsAsync = ref.watch(eventsStreamProvider);
-    final membersAsync = ref.watch(membersStreamProvider);
+    final membersAsync = ref.watch(allMembersProvider);
 
     return Scaffold(
       appBar: AppBar(
