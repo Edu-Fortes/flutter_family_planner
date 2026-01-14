@@ -71,7 +71,6 @@ class ProfileRepository {
           'full_name': fullName,
           'display_name': displayName,
           'color': color,
-          'updated_at': DateTime.now().toIso8601String(),
         })
         .eq('id', user.id);
   }
