@@ -49,15 +49,15 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                   constraints: const BoxConstraints(minWidth: 72, maxWidth: 80),
                   child: Column(
                     children: [
-                      // 1. NAVIGATION RAIL (Takes available space)
+                      // 1. NAVIGATION RAIL
                       Expanded(
                         child: NavigationRail(
                           selectedIndex: _selectedIndex,
                           onDestinationSelected: (int index) {
                             setState(() => _selectedIndex = index);
                           },
-                          labelType: NavigationRailLabelType.none, // Icons Only
-                          groupAlignment: -1.0, // Top Aligned
+                          labelType: NavigationRailLabelType.none,
+                          groupAlignment: -1.0,
                           leading: const Padding(
                             padding: EdgeInsets.symmetric(vertical: 24),
                             child: Icon(
@@ -66,7 +66,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                               color: Colors.blue,
                             ),
                           ),
-                          // No trailing here (we put it in the column below)
                           destinations: const [
                             NavigationRailDestination(
                               icon: Icon(Icons.dashboard_outlined),
@@ -98,20 +97,69 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                       ),
 
                       // 2. FOOTER (Pinned to Bottom)
-                      // We use the Mini Avatar because the rail is narrow
                       const Divider(indent: 10, endIndent: 10),
                       const SizedBox(height: 10),
 
-                      Tooltip(
-                        message: 'Editar Perfil',
-                        child: _MiniProfileAvatar(
-                          onTap: () => Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => const EditProfileScreen(),
-                            ),
-                          ),
+                      // --- NEW POPUP MENU ---
+                      PopupMenuButton<String>(
+                        tooltip: 'Menu de Perfil',
+                        offset: const Offset(
+                          50,
+                          -100,
+                        ), // Pop up and to the right
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
+                        itemBuilder: (context) {
+                          // Check Role dynamically
+                          final profile = ref.read(profileProvider).value;
+                          final isAdmin = profile?.role == 'admin';
+
+                          return [
+                            // Option 1: Edit Profile
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: Row(
+                                children: [
+                                  Icon(Icons.person, color: Colors.blue),
+                                  SizedBox(width: 12),
+                                  Text('Editar Perfil'),
+                                ],
+                              ),
+                            ),
+                            // Option 2: Invitations (Admin Only)
+                            if (isAdmin)
+                              const PopupMenuItem(
+                                value: 'invite',
+                                child: Row(
+                                  children: [
+                                    Icon(Icons.vpn_key, color: Colors.green),
+                                    SizedBox(width: 12),
+                                    Text('Convites'),
+                                  ],
+                                ),
+                              ),
+                          ];
+                        },
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const EditProfileScreen(),
+                              ),
+                            );
+                          } else if (value == 'invite') {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => const InvitationScreen(),
+                              ),
+                            );
+                          }
+                        },
+                        // We pass NULL to onTap so the PopupMenuButton handles the click
+                        child: const _MiniProfileAvatar(onTap: null),
                       ),
 
                       const SizedBox(height: 10),
@@ -140,7 +188,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
             );
           }
           // ============================================================
-          // 📱 MOBILE VIEW (< 800px) - "Minimal & Focused"
+          // 📱 MOBILE VIEW (< 800px)
           // ============================================================
           else {
             final mobilePages = [
@@ -302,11 +350,11 @@ class _MobileMenuScreen extends ConsumerWidget {
 }
 
 // -----------------------------------------------------------------------------
-// 🔹 HELPER: Mini Avatar (Used in both Desktop Rail and Mobile AppBar)
+// 🔹 HELPER: Mini Avatar (Updated to accept nullable onTap)
 // -----------------------------------------------------------------------------
 class _MiniProfileAvatar extends ConsumerWidget {
-  final VoidCallback onTap;
-  const _MiniProfileAvatar({required this.onTap});
+  final VoidCallback? onTap; // <--- CHANGED: Now optional
+  const _MiniProfileAvatar({this.onTap}); // <--- CHANGED: Not required
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -321,6 +369,8 @@ class _MiniProfileAvatar extends ConsumerWidget {
 
         return InkWell(
           onTap: onTap,
+          // If onTap is null, this InkWell is disabled,
+          // allowing the parent PopupMenuButton to handle the tap.
           borderRadius: BorderRadius.circular(50),
           child: CircleAvatar(
             radius: 18,
