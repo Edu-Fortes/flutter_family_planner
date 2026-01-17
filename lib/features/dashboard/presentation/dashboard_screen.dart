@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:intl/intl.dart';
 
 // --- FEATURE IMPORTS ---
 import '../../auth/data/auth_repository.dart';
@@ -14,6 +15,10 @@ import '../../profile/presentation/edit_profile_screen.dart';
 
 // --- WIDGET IMPORTS ---
 import 'dashboard_overview.dart';
+import 'widgets/grocery_summary_widget.dart';
+import '../../calendar/data/calendar_repository.dart';
+import '../../members/data/member_repository.dart';
+import '../../dashboard/data/dashboard_repository.dart'; //
 
 class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
@@ -31,7 +36,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
       body: LayoutBuilder(
         builder: (context, constraints) {
           // ============================================================
-          // 🖥️ DESKTOP VIEW (> 800px) - "The Command Center"
+          // 🖥️ DESKTOP VIEW (> 800px)
           // ============================================================
           if (constraints.maxWidth > 800) {
             final desktopPages = [
@@ -44,12 +49,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             return Row(
               children: [
-                // SIDEBAR COLUMN: Rail (Top) + Footer (Bottom)
                 ConstrainedBox(
                   constraints: const BoxConstraints(minWidth: 72, maxWidth: 80),
                   child: Column(
                     children: [
-                      // 1. NAVIGATION RAIL
                       Expanded(
                         child: NavigationRail(
                           selectedIndex: _selectedIndex,
@@ -96,27 +99,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                         ),
                       ),
 
-                      // 2. FOOTER (Pinned to Bottom)
                       const Divider(indent: 10, endIndent: 10),
                       const SizedBox(height: 10),
 
-                      // --- NEW POPUP MENU ---
+                      // Desktop Popup
                       PopupMenuButton<String>(
                         tooltip: 'Menu de Perfil',
-                        offset: const Offset(
-                          50,
-                          -100,
-                        ), // Pop up and to the right
+                        offset: const Offset(50, -100),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
                         itemBuilder: (context) {
-                          // Check Role dynamically
                           final profile = ref.read(profileProvider).value;
                           final isAdmin = profile?.role == 'admin';
-
                           return [
-                            // Option 1: Edit Profile
                             const PopupMenuItem(
                               value: 'edit',
                               child: Row(
@@ -127,7 +123,6 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                                 ],
                               ),
                             ),
-                            // Option 2: Invitations (Admin Only)
                             if (isAdmin)
                               const PopupMenuItem(
                                 value: 'invite',
@@ -158,12 +153,10 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                             );
                           }
                         },
-                        // We pass NULL to onTap so the PopupMenuButton handles the click
                         child: const _MiniProfileAvatar(onTap: null),
                       ),
 
                       const SizedBox(height: 10),
-
                       IconButton(
                         icon: const Icon(Icons.logout, color: Colors.red),
                         tooltip: 'Sair',
@@ -174,10 +167,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                     ],
                   ),
                 ),
-
                 const VerticalDivider(thickness: 1, width: 1),
-
-                // MAIN CONTENT
                 Expanded(
                   child:
                       desktopPages[_selectedIndex >= desktopPages.length
@@ -192,7 +182,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
           // ============================================================
           else {
             final mobilePages = [
-              const _MobileMenuScreen(),
+              const _MobileDashboardScreen(),
               const TasksScreen(),
               const GroceryScreen(),
               const CalendarScreen(),
@@ -241,27 +231,84 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 }
 
 // -----------------------------------------------------------------------------
-// 📱 MOBILE HOME SCREEN
+// 📱 MOBILE DASHBOARD
 // -----------------------------------------------------------------------------
-class _MobileMenuScreen extends ConsumerWidget {
-  const _MobileMenuScreen();
+class _MobileDashboardScreen extends ConsumerWidget {
+  const _MobileDashboardScreen();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = Supabase.instance.client.auth.currentUser;
-    final profileAsync = ref.watch(profileProvider);
-
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Planejamento Familiar'),
+        title: const Text('Visão Geral'),
         actions: [
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
-            child: _MiniProfileAvatar(
-              onTap: () => Navigator.push(
-                context,
-                MaterialPageRoute(builder: (_) => const EditProfileScreen()),
+            child: PopupMenuButton<String>(
+              tooltip: 'Menu',
+              offset: const Offset(0, 50),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
               ),
+              itemBuilder: (context) {
+                final profile = ref.read(profileProvider).value;
+                final isAdmin = profile?.role == 'admin';
+
+                return [
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.person, color: Colors.blue),
+                        SizedBox(width: 12),
+                        Text('Editar Perfil'),
+                      ],
+                    ),
+                  ),
+                  const PopupMenuItem(
+                    value: 'family',
+                    child: Row(
+                      children: [
+                        Icon(Icons.people, color: Colors.orange),
+                        SizedBox(width: 12),
+                        Text('Gerenciar Família'),
+                      ],
+                    ),
+                  ),
+                  if (isAdmin)
+                    const PopupMenuItem(
+                      value: 'invite',
+                      child: Row(
+                        children: [
+                          Icon(Icons.vpn_key, color: Colors.green),
+                          SizedBox(width: 12),
+                          Text('Convites'),
+                        ],
+                      ),
+                    ),
+                ];
+              },
+              onSelected: (value) {
+                if (value == 'edit') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const EditProfileScreen(),
+                    ),
+                  );
+                } else if (value == 'family') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const MemberScreen()),
+                  );
+                } else if (value == 'invite') {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const InvitationScreen()),
+                  );
+                }
+              },
+              child: const _MiniProfileAvatar(onTap: null),
             ),
           ),
           IconButton(
@@ -270,91 +317,262 @@ class _MobileMenuScreen extends ConsumerWidget {
           ),
         ],
       ),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Icon(Icons.family_restroom, size: 80, color: Colors.teal),
-              const SizedBox(height: 20),
-              Text(
-                'Olá, ${user?.email?.split('@')[0] ?? 'Membro'}!',
-                style: Theme.of(context).textTheme.headlineSmall,
-              ),
-              const SizedBox(height: 40),
+      body: const Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            // 1. Agenda (Today Only)
+            Expanded(flex: 3, child: _MobileAgendaWidget()),
+            SizedBox(height: 16),
 
-              _buildMenuButton(
-                context,
-                'Gerenciar Família',
-                Icons.people,
-                () => Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (_) => const MemberScreen()),
-                ),
+            // 2. Summaries - STACKED IN COLUMN
+            Expanded(
+              flex: 2,
+              child: Column(
+                children: [
+                  Expanded(child: GrocerySummaryWidget()),
+                  SizedBox(height: 12),
+                  Expanded(child: _MobilePrioritySummary()),
+                ],
               ),
-
-              profileAsync.when(
-                data: (profile) {
-                  if (profile?.role == 'admin') {
-                    return Padding(
-                      padding: const EdgeInsets.only(top: 16.0),
-                      child: _buildMenuButton(
-                        context,
-                        'Convites',
-                        Icons.vpn_key,
-                        () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const InvitationScreen(),
-                          ),
-                        ),
-                        isPrimary: true,
-                      ),
-                    );
-                  }
-                  return const SizedBox.shrink();
-                },
-                loading: () => const SizedBox.shrink(),
-                error: (_, _) => const SizedBox.shrink(),
-              ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
-    );
-  }
-
-  Widget _buildMenuButton(
-    BuildContext context,
-    String label,
-    IconData icon,
-    VoidCallback onPressed, {
-    bool isPrimary = false,
-  }) {
-    return SizedBox(
-      width: 250,
-      height: 50,
-      child: isPrimary
-          ? FilledButton.icon(
-              onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label),
-            )
-          : OutlinedButton.icon(
-              onPressed: onPressed,
-              icon: Icon(icon),
-              label: Text(label),
-            ),
     );
   }
 }
 
 // -----------------------------------------------------------------------------
-// 🔹 HELPER: Mini Avatar (Updated to accept nullable onTap)
+// 🚨 NEW MOBILE PRIORITY WIDGET (Counter Only)
+// -----------------------------------------------------------------------------
+class _MobilePrioritySummary extends ConsumerWidget {
+  const _MobilePrioritySummary();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    // Correctly watch the provider from dashboard_repository.dart
+    final tasksAsync = ref.watch(priorityTasksProvider);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainer,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: tasksAsync.when(
+        loading: () => const Center(child: CircularProgressIndicator()),
+        error: (_, _) =>
+            const Center(child: Icon(Icons.error, color: Colors.grey)),
+        data: (tasks) {
+          // Count tasks. Assuming all tasks in this provider are "Priority" ones.
+          // If you need to filter for High Priority (1), use: .where((t) => t.priority == 1)
+          final count = tasks.length;
+
+          return Row(
+            // Using Row to center content nicely
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.flag_rounded,
+                size: 28,
+                color: Colors.red,
+              ), // Red flag for priority
+              const SizedBox(width: 12),
+              Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    '$count',
+                    style: const TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text(
+                    'Prioridades',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+}
+
+// -----------------------------------------------------------------------------
+// 📅 MOBILE AGENDA WIDGET
+// -----------------------------------------------------------------------------
+class _MobileAgendaWidget extends ConsumerWidget {
+  const _MobileAgendaWidget();
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final eventsAsync = ref.watch(eventsStreamProvider);
+    final membersAsync = ref.watch(allMembersProvider);
+
+    return Container(
+      decoration: BoxDecoration(
+        color: Theme.of(context).colorScheme.surfaceContainerLow,
+        borderRadius: BorderRadius.circular(16),
+      ),
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            color: Theme.of(
+              context,
+            ).colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+            child: Text(
+              'Agenda de Hoje',
+              style: Theme.of(
+                context,
+              ).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+            ),
+          ),
+
+          Expanded(
+            child: eventsAsync.when(
+              loading: () => const Center(child: CircularProgressIndicator()),
+              error: (_, _) => const Center(child: Text('Erro ao carregar')),
+              data: (events) {
+                final members = membersAsync.value ?? [];
+
+                return SfCalendar(
+                  view: CalendarView.schedule,
+                  dataSource: _MobileCalendarDataSource(events, members),
+                  headerHeight: 0,
+                  viewHeaderHeight: 0,
+                  minDate: DateTime.now(),
+                  maxDate: DateTime.now().add(const Duration(days: 1)),
+
+                  scheduleViewSettings: const ScheduleViewSettings(
+                    appointmentItemHeight: 60,
+                    hideEmptyScheduleWeek: true,
+                    monthHeaderSettings: MonthHeaderSettings(height: 0),
+                  ),
+
+                  appointmentBuilder: (context, details) {
+                    final event = details.appointments.first as FamilyEvent;
+                    FamilyMember? member;
+                    if (event.assignedToMemberId != null) {
+                      try {
+                        member = members.firstWhere(
+                          (m) =>
+                              m.id == event.assignedToMemberId ||
+                              m.profileId == event.assignedToMemberId,
+                        );
+                      } catch (_) {}
+                    }
+                    final color = member != null
+                        ? Color(member.colorValue)
+                        : Colors.blue;
+
+                    return Container(
+                      decoration: BoxDecoration(
+                        color: Theme.of(context).colorScheme.surface,
+                        borderRadius: BorderRadius.circular(8),
+                        border: Border(
+                          left: BorderSide(color: color, width: 4),
+                        ),
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 12),
+                      margin: const EdgeInsets.only(
+                        bottom: 4,
+                        top: 4,
+                        left: 8,
+                        right: 8,
+                      ),
+                      child: Row(
+                        children: [
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                DateFormat('HH:mm').format(event.startTime),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              Text(
+                                DateFormat('HH:mm').format(event.endTime),
+                                style: const TextStyle(
+                                  fontSize: 10,
+                                  color: Colors.grey,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              event.title,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                          if (member != null)
+                            CircleAvatar(
+                              radius: 12,
+                              backgroundColor: color.withValues(alpha: 0.2),
+                              backgroundImage: member.avatarUrl != null
+                                  ? NetworkImage(member.avatarUrl!)
+                                  : null,
+                              child: member.avatarUrl == null
+                                  ? Text(
+                                      member.name[0],
+                                      style: TextStyle(
+                                        color: color,
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    )
+                                  : null,
+                            ),
+                        ],
+                      ),
+                    );
+                  },
+                );
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileCalendarDataSource extends CalendarDataSource {
+  final List<FamilyMember> members;
+  _MobileCalendarDataSource(List<FamilyEvent> source, this.members) {
+    appointments = source;
+  }
+  @override
+  DateTime getStartTime(int index) =>
+      (appointments![index] as FamilyEvent).startTime;
+  @override
+  DateTime getEndTime(int index) =>
+      (appointments![index] as FamilyEvent).endTime;
+  @override
+  String getSubject(int index) => (appointments![index] as FamilyEvent).title;
+  @override
+  bool isAllDay(int index) => (appointments![index] as FamilyEvent).isAllDay;
+}
+
+// -----------------------------------------------------------------------------
+// 🔹 HELPER: Mini Avatar
 // -----------------------------------------------------------------------------
 class _MiniProfileAvatar extends ConsumerWidget {
-  final VoidCallback? onTap; // <--- CHANGED: Now optional
-  const _MiniProfileAvatar({this.onTap}); // <--- CHANGED: Not required
+  final VoidCallback? onTap;
+  const _MiniProfileAvatar({this.onTap});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -369,8 +587,6 @@ class _MiniProfileAvatar extends ConsumerWidget {
 
         return InkWell(
           onTap: onTap,
-          // If onTap is null, this InkWell is disabled,
-          // allowing the parent PopupMenuButton to handle the tap.
           borderRadius: BorderRadius.circular(50),
           child: CircleAvatar(
             radius: 18,
