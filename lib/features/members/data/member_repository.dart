@@ -1,6 +1,6 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart'; // 1. Use ImagePicker types
 
 // --- MODEL ---
 class FamilyMember {
@@ -8,8 +8,8 @@ class FamilyMember {
   final String name;
   final String color;
   final String? avatarUrl;
-  final String? profileId; // If populated, this is a Real User (Parent)
-  final bool isVirtual; // true = Child, false = Real User
+  final String? profileId;
+  final bool isVirtual;
 
   FamilyMember({
     required this.id,
@@ -20,7 +20,6 @@ class FamilyMember {
     required this.isVirtual,
   });
 
-  // Helper: Color conversion
   int get colorValue {
     try {
       return int.parse(color.replaceFirst('#', 'FF'), radix: 16);
@@ -29,20 +28,17 @@ class FamilyMember {
     }
   }
 
-  // 1. Factory for REAL Users (Profiles Table)
   factory FamilyMember.fromProfile(Map<String, dynamic> json) {
     return FamilyMember(
       id: json['id'],
-      // Prefer display_name, fallback to username
       name: json['display_name'] ?? json['username'] ?? 'User',
       color: json['color'] ?? '#2196F3',
       avatarUrl: json['avatar_url'],
-      profileId: json['id'], // It links to itself
+      profileId: json['id'],
       isVirtual: false,
     );
   }
 
-  // 2. Factory for VIRTUAL Users (Family Members Table)
   factory FamilyMember.fromVirtual(Map<String, dynamic> json) {
     return FamilyMember(
       id: json['id'],
@@ -60,7 +56,6 @@ class MemberRepository {
   final SupabaseClient _client;
   MemberRepository(this._client);
 
-  // 1. Stream REAL Users (Profiles)
   Stream<List<FamilyMember>> getRealMembersStream() {
     return _client
         .from('profiles')
@@ -70,7 +65,6 @@ class MemberRepository {
         );
   }
 
-  // 2. Stream VIRTUAL Users (Children)
   Stream<List<FamilyMember>> getVirtualMembersStream() {
     return _client
         .from('family_members')
@@ -80,7 +74,6 @@ class MemberRepository {
         );
   }
 
-  // 3. Add Virtual Member
   Future<void> addVirtualMember(String name, String color) async {
     final user = _client.auth.currentUser;
     if (user == null) return;
@@ -92,7 +85,6 @@ class MemberRepository {
     });
   }
 
-  // 4. Update Virtual Member
   Future<void> updateVirtualMember({
     required String memberId,
     required String name,
@@ -105,18 +97,27 @@ class MemberRepository {
         .eq('id', memberId);
   }
 
-  // 5. Upload Child Avatar
-  Future<String?> uploadMemberAvatar(File imageFile, String memberId) async {
-    final fileExt = imageFile.path.split('.').last;
+  // 2. FIXED UPLOAD METHOD FOR WEB & MOBILE
+  Future<String?> uploadMemberAvatar(XFile image, String memberId) async {
+    // A. Read the bytes (Works on Web & Mobile)
+    final bytes = await image.readAsBytes();
+
+    // B. Get extension safely
+    final fileExt = image.name.split('.').last;
     final fileName =
         'members/$memberId/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
+
     try {
+      // C. Use uploadBinary
       await _client.storage
           .from('avatars')
-          .upload(
+          .uploadBinary(
             fileName,
-            imageFile,
-            fileOptions: const FileOptions(upsert: true),
+            bytes,
+            fileOptions: FileOptions(
+              upsert: true,
+              contentType: 'image/$fileExt',
+            ),
           );
       return _client.storage.from('avatars').getPublicUrl(fileName);
     } catch (e) {
@@ -124,7 +125,6 @@ class MemberRepository {
     }
   }
 
-  // 6. Delete Virtual Member
   Future<void> deleteMember(String memberId) async {
     await _client.from('family_members').delete().eq('id', memberId);
   }
@@ -134,29 +134,23 @@ final memberRepositoryProvider = Provider(
   (ref) => MemberRepository(Supabase.instance.client),
 );
 
-// --- THE PROVIDER MIXER (No StreamGroup needed!) ---
-
-// 1. Watch Real Users
+// --- THE PROVIDER MIXER ---
 final realMembersProvider = StreamProvider((ref) {
   return ref.watch(memberRepositoryProvider).getRealMembersStream();
 });
 
-// 2. Watch Virtual Users
 final virtualMembersProvider = StreamProvider((ref) {
   return ref.watch(memberRepositoryProvider).getVirtualMembersStream();
 });
 
-// 3. Merge them into one list
 final allMembersProvider = Provider<AsyncValue<List<FamilyMember>>>((ref) {
   final realAsync = ref.watch(realMembersProvider);
   final virtualAsync = ref.watch(virtualMembersProvider);
 
-  // If either is loading, the whole list is loading
   if (realAsync.isLoading || virtualAsync.isLoading) {
     return const AsyncValue.loading();
   }
 
-  // If error
   if (realAsync.hasError) {
     return AsyncValue.error(realAsync.error!, realAsync.stackTrace!);
   }
@@ -164,13 +158,10 @@ final allMembersProvider = Provider<AsyncValue<List<FamilyMember>>>((ref) {
     return AsyncValue.error(virtualAsync.error!, virtualAsync.stackTrace!);
   }
 
-  // Merge Data
   final real = realAsync.value ?? [];
   final virtual = virtualAsync.value ?? [];
 
   final combined = [...real, ...virtual];
-
-  // Sort alphabetically by name
   combined.sort((a, b) => a.name.compareTo(b.name));
 
   return AsyncValue.data(combined);
