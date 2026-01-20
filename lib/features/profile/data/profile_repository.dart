@@ -1,16 +1,16 @@
-import 'dart:io';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart'; // Import ImagePicker
 import '../../auth/data/auth_repository.dart';
 
 class ProfileModel {
   final String id;
-  final String username; // The unique handle (often used for login/display)
-  final String? fullName; // "Eduardo Fortes"
-  final String? displayName; // "Edu" (The short name shown on Dashboard)
-  final String color; // Hex string
+  final String username;
+  final String? fullName;
+  final String? displayName;
+  final String color;
   final String? avatarUrl;
-  final String role; // 'admin' or 'member'
+  final String role;
 
   ProfileModel({
     required this.id,
@@ -75,28 +75,35 @@ class ProfileRepository {
         .eq('id', user.id);
   }
 
-  // 3. Upload My Avatar
-  Future<String?> uploadAvatar(File imageFile) async {
+  // 3. Upload My Avatar (WEB & MOBILE FIX)
+  Future<String?> uploadAvatar(XFile image) async {
     final user = _client.auth.currentUser;
     if (user == null) return null;
 
-    // Path: avatars/USER_ID/timestamp.jpg
-    final fileExt = imageFile.path.split('.').last;
+    // A. Read Bytes
+    final bytes = await image.readAsBytes();
+
+    // B. Safe Filename
+    final fileExt = image.name.split('.').last;
     final fileName =
         '${user.id}/${DateTime.now().millisecondsSinceEpoch}.$fileExt';
 
     try {
+      // C. Upload Binary
       await _client.storage
           .from('avatars')
-          .upload(
+          .uploadBinary(
             fileName,
-            imageFile,
-            fileOptions: const FileOptions(upsert: true),
+            bytes,
+            fileOptions: FileOptions(
+              upsert: true,
+              contentType: 'image/$fileExt',
+            ),
           );
 
       final imageUrl = _client.storage.from('avatars').getPublicUrl(fileName);
 
-      // Save URL to DB immediately
+      // Save URL to DB
       await _client
           .from('profiles')
           .update({'avatar_url': imageUrl})
@@ -104,7 +111,6 @@ class ProfileRepository {
 
       return imageUrl;
     } catch (e) {
-      // print('Upload Error: $e');
       return null;
     }
   }
@@ -114,9 +120,9 @@ final profileRepositoryProvider = Provider(
   (ref) => ProfileRepository(Supabase.instance.client),
 );
 
-// Stream Provider for Real-Time updates on the Dashboard
+// Stream Provider
 final profileProvider = StreamProvider.autoDispose<ProfileModel?>((ref) {
-  ref.watch(authStateProvider); // Rebuild on logout/login
+  ref.watch(authStateProvider);
 
   final user = Supabase.instance.client.auth.currentUser;
   if (user == null) return Stream.value(null);

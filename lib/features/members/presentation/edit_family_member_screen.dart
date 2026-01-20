@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data'; // Required for Uint8List
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -19,7 +19,10 @@ class _EditFamilyMemberScreenState
   late TextEditingController _nameController;
   late String _selectedColor;
   String? _avatarUrl;
-  File? _localImageFile;
+
+  // WEB-SAFE IMAGE HANDLING
+  XFile? _pickedFile;
+  Uint8List? _pickedImageBytes; // For Preview
   bool _isLoading = false;
 
   final List<String> _colorOptions = [
@@ -48,8 +51,13 @@ class _EditFamilyMemberScreenState
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      setState(() => _localImageFile = File(pickedFile.path));
+      final bytes = await pickedFile.readAsBytes(); // Read bytes immediately
+      setState(() {
+        _pickedFile = pickedFile;
+        _pickedImageBytes = bytes;
+      });
     }
   }
 
@@ -60,10 +68,10 @@ class _EditFamilyMemberScreenState
     try {
       final repo = ref.read(memberRepositoryProvider);
 
-      // 1. Upload new image if selected
-      if (_localImageFile != null) {
+      // 1. Upload new image if selected (Pass XFile)
+      if (_pickedFile != null) {
         _avatarUrl = await repo.uploadMemberAvatar(
-          _localImageFile!,
+          _pickedFile!,
           widget.member.id,
         );
       }
@@ -157,11 +165,12 @@ class _EditFamilyMemberScreenState
                   backgroundColor: hexToColor(
                     _selectedColor,
                   ).withValues(alpha: 0.2),
-                  backgroundImage: _localImageFile != null
-                      ? FileImage(_localImageFile!)
+                  // USE MEMORY IMAGE FOR LOCAL PREVIEW (Works on Web)
+                  backgroundImage: _pickedImageBytes != null
+                      ? MemoryImage(_pickedImageBytes!)
                       : (_avatarUrl != null ? NetworkImage(_avatarUrl!) : null)
                             as ImageProvider?,
-                  child: (_localImageFile == null && _avatarUrl == null)
+                  child: (_pickedImageBytes == null && _avatarUrl == null)
                       ? Icon(
                           Icons.camera_alt,
                           size: 30,

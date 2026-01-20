@@ -1,4 +1,4 @@
-import 'dart:io';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
@@ -16,12 +16,15 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
 
   // Controllers
   final _fullNameController = TextEditingController();
-  final _displayNameController = TextEditingController(); // e.g. "Dad"
+  final _displayNameController = TextEditingController();
 
   // State
   String _selectedColor = '#2196F3';
   String? _avatarUrl;
-  File? _localImageFile;
+
+  // WEB-SAFE IMAGE HANDLING
+  XFile? _pickedFile;
+  Uint8List? _pickedImageBytes;
   bool _isLoading = false;
 
   final List<String> _colorOptions = [
@@ -43,7 +46,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   }
 
   Future<void> _loadCurrentProfile() async {
-    // We read the provider once to pre-fill data
     final profileAsync = ref.read(profileProvider);
     profileAsync.whenData((profile) {
       if (profile != null) {
@@ -60,8 +62,13 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
   Future<void> _pickImage() async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+
     if (pickedFile != null) {
-      setState(() => _localImageFile = File(pickedFile.path));
+      final bytes = await pickedFile.readAsBytes();
+      setState(() {
+        _pickedFile = pickedFile;
+        _pickedImageBytes = bytes;
+      });
     }
   }
 
@@ -73,8 +80,8 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
       final repo = ref.read(profileRepositoryProvider);
 
       // 1. Upload Image (if changed)
-      if (_localImageFile != null) {
-        await repo.uploadAvatar(_localImageFile!);
+      if (_pickedFile != null) {
+        await repo.uploadAvatar(_pickedFile!);
       }
 
       // 2. Update Text Data
@@ -84,7 +91,6 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
         color: _selectedColor,
       );
 
-      // 3. Force refresh (optional, but good practice)
       ref.invalidate(profileProvider);
 
       if (mounted) {
@@ -130,11 +136,12 @@ class _EditProfileScreenState extends ConsumerState<EditProfileScreen> {
                   backgroundColor: hexToColor(
                     _selectedColor,
                   ).withValues(alpha: 0.2),
-                  backgroundImage: _localImageFile != null
-                      ? FileImage(_localImageFile!)
+                  // PREVIEW: Use MemoryImage for local bytes, NetworkImage for URL
+                  backgroundImage: _pickedImageBytes != null
+                      ? MemoryImage(_pickedImageBytes!)
                       : (_avatarUrl != null ? NetworkImage(_avatarUrl!) : null)
                             as ImageProvider?,
-                  child: (_localImageFile == null && _avatarUrl == null)
+                  child: (_pickedImageBytes == null && _avatarUrl == null)
                       ? Icon(
                           Icons.camera_alt,
                           size: 30,
