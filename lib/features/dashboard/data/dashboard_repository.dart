@@ -68,6 +68,14 @@ class DashboardRepository {
         .update({'is_completed': true})
         .eq('id', id);
   }
+
+  // --- NEW: Update Task ---
+  Future<void> updateTask(int id, String title, int priority) async {
+    await _client
+        .from('priority_tasks')
+        .update({'title': title, 'priority': priority})
+        .eq('id', id);
+  }
 }
 
 // --- PROVIDERS ---
