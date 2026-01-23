@@ -491,23 +491,42 @@ class _MobileAgendaWidget extends ConsumerWidget {
                       ),
                       child: Row(
                         children: [
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                DateFormat('HH:mm').format(event.startTime),
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                DateFormat('HH:mm').format(event.endTime),
-                                style: const TextStyle(
-                                  fontSize: 10,
-                                  color: Colors.grey,
-                                ),
-                              ),
-                            ],
+                          SizedBox(
+                            width: 45,
+                            child: event.isAllDay
+                                ? const Center(
+                                    child: Text(
+                                      'Dia\nTodo',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 10,
+                                        height: 1.1,
+                                      ),
+                                    ),
+                                  )
+                                : Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        DateFormat(
+                                          'HH:mm',
+                                        ).format(event.startTime),
+                                        style: const TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        DateFormat(
+                                          'HH:mm',
+                                        ).format(event.endTime),
+                                        style: const TextStyle(
+                                          fontSize: 10,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                           ),
                           const SizedBox(width: 12),
                           Expanded(

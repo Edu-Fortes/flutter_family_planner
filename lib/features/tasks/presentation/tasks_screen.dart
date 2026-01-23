@@ -12,7 +12,7 @@ class TasksScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Tarefas Prioritárias')),
       floatingActionButton: FloatingActionButton.extended(
-        onPressed: () => _showAddTaskDialog(context, ref),
+        onPressed: () => _showTaskDialog(context, ref),
         label: const Text('Nova Tarefa'),
         icon: const Icon(Icons.add),
       ),
@@ -46,6 +46,9 @@ class TasksScreen extends ConsumerWidget {
                 elevation: 0,
                 color: Theme.of(context).colorScheme.surfaceContainerHighest,
                 child: ListTile(
+                  // --- NEW: Tap to Edit ---
+                  onTap: () => _showTaskDialog(context, ref, taskToEdit: task),
+
                   leading: CircleAvatar(
                     backgroundColor: _getPriorityColor(task.priority),
                     child: Text(
@@ -87,15 +90,21 @@ class TasksScreen extends ConsumerWidget {
     }
   }
 
-  void _showAddTaskDialog(BuildContext context, WidgetRef ref) {
-    final controller = TextEditingController();
-    int selectedPriority = 1; // Default High
+  // --- REFACTORED DIALOG: Handles Add AND Edit ---
+  void _showTaskDialog(
+    BuildContext context,
+    WidgetRef ref, {
+    TaskItem? taskToEdit, // Optional: If provided, we are in "Edit Mode"
+  }) {
+    final isEditing = taskToEdit != null;
+    final controller = TextEditingController(text: taskToEdit?.title ?? '');
+    int selectedPriority = taskToEdit?.priority ?? 1;
 
     showDialog(
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setState) => AlertDialog(
-          title: const Text('Nova Tarefa Prioritária'),
+          title: Text(isEditing ? 'Editar Tarefa' : 'Nova Tarefa Prioritária'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
@@ -139,9 +148,21 @@ class TasksScreen extends ConsumerWidget {
             FilledButton(
               onPressed: () {
                 if (controller.text.isNotEmpty) {
-                  ref
-                      .read(dashboardRepoProvider)
-                      .addTask(controller.text, selectedPriority);
+                  if (isEditing) {
+                    // Update existing
+                    ref
+                        .read(dashboardRepoProvider)
+                        .updateTask(
+                          taskToEdit.id,
+                          controller.text,
+                          selectedPriority,
+                        );
+                  } else {
+                    // Create new
+                    ref
+                        .read(dashboardRepoProvider)
+                        .addTask(controller.text, selectedPriority);
+                  }
                   Navigator.pop(ctx);
                 }
               },
