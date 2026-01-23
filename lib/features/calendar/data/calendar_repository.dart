@@ -7,7 +7,10 @@ class FamilyEvent {
   final DateTime startTime;
   final DateTime endTime;
   final bool isAllDay;
-  final String? assignedToMemberId; // The Link to the Member
+  final String? assignedToMemberId;
+  // --- NEW FIELDS ---
+  final String? recurrenceRule;
+  final String? exceptionDates;
 
   FamilyEvent({
     required this.id,
@@ -16,6 +19,8 @@ class FamilyEvent {
     required this.endTime,
     this.isAllDay = false,
     this.assignedToMemberId,
+    this.recurrenceRule,
+    this.exceptionDates,
   });
 
   factory FamilyEvent.fromJson(Map<String, dynamic> json) {
@@ -26,6 +31,8 @@ class FamilyEvent {
       endTime: DateTime.parse(json['end_time']).toLocal(),
       isAllDay: json['is_all_day'] ?? false,
       assignedToMemberId: json['assigned_to'],
+      recurrenceRule: json['recurrence_rule'], // <--- Map it
+      exceptionDates: json['exception_dates'], // <--- Map it
     );
   }
 
@@ -36,6 +43,8 @@ class FamilyEvent {
       'end_time': endTime.toUtc().toIso8601String(),
       'is_all_day': isAllDay,
       'assigned_to': assignedToMemberId,
+      'recurrence_rule': recurrenceRule, // <--- Send it
+      'exception_dates': exceptionDates, // <--- Send it
     };
   }
 }
@@ -56,7 +65,7 @@ class CalendarRepository {
     if (user == null) throw Exception('Must be logged in');
 
     final data = event.toJson();
-    data['created_by'] = user.id; // Still track who technically typed it
+    data['created_by'] = user.id;
 
     await _client.from('family_events').insert(data);
   }
@@ -65,10 +74,7 @@ class CalendarRepository {
     final user = _client.auth.currentUser;
     if (user == null) throw Exception('Must be logged in');
 
-    // Reuse toJson but make sure ID is not part of the body if Supabase complains,
-    // though usually .match handles the ID selection.
     final data = event.toJson();
-
     await _client.from('family_events').update(data).eq('id', event.id);
   }
 
