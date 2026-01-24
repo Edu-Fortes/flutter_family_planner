@@ -246,6 +246,34 @@ class _FamilyDataSource extends CalendarDataSource {
   bool isAllDay(int index) => (appointments![index] as FamilyEvent).isAllDay;
 
   @override
+  String? getRecurrenceRule(int index) {
+    final event = appointments![index] as FamilyEvent;
+    final rule = event.recurrenceRule;
+
+    if (rule == null) return null;
+
+    // CRITICAL FIX: Block invalid weekly rules
+    if (rule.contains('FREQ=WEEKLY') && !rule.contains('BYDAY')) {
+      return null;
+    }
+
+    return rule;
+  }
+
+  @override
+  List<DateTime>? getRecurrenceExceptionDates(int index) {
+    final event = appointments![index] as FamilyEvent;
+    if (event.exceptionDates == null || event.exceptionDates!.isEmpty) {
+      return null;
+    }
+    // Parse the comma-separated string back to DateTime list
+    return event.exceptionDates!
+        .split(',')
+        .map((dateString) => DateTime.parse(dateString))
+        .toList();
+  }
+
+  @override
   Color getColor(int index) {
     final event = appointments![index] as FamilyEvent;
     if (event.assignedToMemberId != null) {

@@ -5,7 +5,7 @@ import 'package:syncfusion_flutter_calendar/calendar.dart';
 import 'package:intl/intl.dart';
 
 import '../../../calendar/data/calendar_repository.dart';
-import '../../../members/data/member_repository.dart'; //
+import '../../../members/data/member_repository.dart';
 
 class CalendarSummaryWidget extends ConsumerStatefulWidget {
   const CalendarSummaryWidget({super.key});
@@ -33,7 +33,6 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
     super.dispose();
   }
 
-  // Ensures the "Today" indicator updates correctly at midnight
   void _scheduleMidnightUpdate() {
     final now = DateTime.now();
     final tomorrow = DateTime(now.year, now.month, now.day + 1);
@@ -53,9 +52,8 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Fetch Data
     final eventsAsync = ref.watch(eventsStreamProvider);
-    final membersAsync = ref.watch(allMembersProvider); // The Unified Mixer
+    final membersAsync = ref.watch(allMembersProvider);
 
     return Card(
       elevation: 0,
@@ -97,31 +95,53 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
             ),
             todayHighlightColor: Colors.orange,
 
-            // --- AGENDA SETTINGS ---
             monthViewSettings: const MonthViewSettings(
               appointmentDisplayMode: MonthAppointmentDisplayMode.indicator,
               showAgenda: true,
-              agendaViewHeight: 380, // Adjust based on your UI needs
-              agendaItemHeight: 60, // Taller rows for avatars
+              agendaViewHeight: 380,
+              agendaItemHeight: 60,
               agendaStyle: AgendaStyle(
                 backgroundColor: Colors.transparent,
                 dateTextStyle: TextStyle(color: Colors.grey, fontSize: 12),
                 dayTextStyle: TextStyle(
-                  color: Colors.black, // Visible text
+                  color: Colors.black,
                   fontWeight: FontWeight.bold,
                   fontSize: 14,
                 ),
               ),
             ),
 
-            // --- THE MAGIC BUILDER ---
+            // --- 🛠️ FIXED BUILDER ---
             appointmentBuilder:
                 (BuildContext context, CalendarAppointmentDetails details) {
                   if (details.appointments.isEmpty) return const SizedBox();
 
-                  final event = details.appointments.first as FamilyEvent;
+                  // 1. SAFE TYPE CHECKING
+                  // Syncfusion sends 'Appointment' for recurring instances,
+                  // and 'FamilyEvent' for normal ones (sometimes).
+                  final dynamic rawAppt = details.appointments.first;
+                  FamilyEvent event;
 
-                  // 1. Find Member (Simplified Logic thanks to 'allMembersProvider')
+                  if (rawAppt is FamilyEvent) {
+                    event = rawAppt;
+                  } else if (rawAppt is Appointment) {
+                    // It's a recurring instance!
+                    // We reconstruct a temporary FamilyEvent using the data.
+                    // We retrieved 'assignedToMemberId' from the 'notes' field (see DataSource).
+                    event = FamilyEvent(
+                      id: rawAppt.id?.toString() ?? 'recurrence',
+                      title: rawAppt.subject,
+                      startTime: rawAppt.startTime,
+                      endTime: rawAppt.endTime,
+                      isAllDay: rawAppt.isAllDay,
+                      assignedToMemberId: rawAppt.notes, // <--- MAGIC LINK
+                      recurrenceRule: rawAppt.recurrenceRule,
+                    );
+                  } else {
+                    return const SizedBox();
+                  }
+
+                  // 2. Find Member
                   FamilyMember? member;
                   if (event.assignedToMemberId != null) {
                     try {
@@ -137,10 +157,8 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
                       ? Color(member.colorValue)
                       : Theme.of(context).primaryColor;
 
-                  // 2. CHECK: Is this a Month Cell (Dot) or Agenda Row (Tile)?
-                  // We use width as a heuristic. Grid cells are narrow (< 60px).
+                  // 3. Render
                   if (details.bounds.width < 100) {
-                    // --- RENDER DOT (Month Grid) ---
                     return Center(
                       child: Container(
                         width: 6,
@@ -153,7 +171,6 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
                     );
                   }
 
-                  // --- RENDER FULL ROW (Agenda List) ---
                   return Container(
                     decoration: BoxDecoration(
                       color: Theme.of(context).colorScheme.surfaceContainer,
@@ -164,13 +181,9 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
                       horizontal: 8,
                       vertical: 4,
                     ),
-                    margin: const EdgeInsets.only(
-                      bottom: 4,
-                      right: 4,
-                    ), // Small spacing
+                    margin: const EdgeInsets.only(bottom: 4, right: 4),
                     child: Row(
                       children: [
-                        // A. Time Column
                         SizedBox(
                           width: 45,
                           child: event.isAllDay
@@ -207,10 +220,7 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
                                   ],
                                 ),
                         ),
-
                         const SizedBox(width: 8),
-
-                        // B. Avatar
                         if (member != null)
                           Padding(
                             padding: const EdgeInsets.only(right: 8.0),
@@ -234,8 +244,6 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
                                   : null,
                             ),
                           ),
-
-                        // C. Title
                         Expanded(
                           child: Text(
                             event.title,
@@ -258,7 +266,7 @@ class _CalendarSummaryWidgetState extends ConsumerState<CalendarSummaryWidget> {
   }
 }
 
-// --- DATA SOURCE ---
+// --- DATA SOURCE (With Fixes) ---
 class _DashboardDataSource extends CalendarDataSource {
   final List<FamilyMember> members;
 
@@ -280,9 +288,39 @@ class _DashboardDataSource extends CalendarDataSource {
   @override
   bool isAllDay(int index) => (appointments![index] as FamilyEvent).isAllDay;
 
+  // 🛠️ CRITICAL FIX 1: Pass custom data via 'notes'
+  @override
+  String? getNotes(int index) {
+    return (appointments![index] as FamilyEvent).assignedToMemberId;
+  }
+
+  // 🛠️ CRITICAL FIX 2: Defensive Recurrence Rule
+  @override
+  String? getRecurrenceRule(int index) {
+    final rule = (appointments![index] as FamilyEvent).recurrenceRule;
+    if (rule != null &&
+        rule.contains('FREQ=WEEKLY') &&
+        !rule.contains('BYDAY')) {
+      return null; // Ignore invalid rules
+    }
+    return rule;
+  }
+
+  // 🛠️ CRITICAL FIX 3: Parse Exception Dates
+  @override
+  List<DateTime>? getRecurrenceExceptionDates(int index) {
+    final event = appointments![index] as FamilyEvent;
+    if (event.exceptionDates == null || event.exceptionDates!.isEmpty) {
+      return null;
+    }
+    return event.exceptionDates!
+        .split(',')
+        .map((dateString) => DateTime.parse(dateString))
+        .toList();
+  }
+
   @override
   Color getColor(int index) {
-    // This color is used for the default indicators if the builder fails
     final event = appointments![index] as FamilyEvent;
     if (event.assignedToMemberId == null) return Colors.blueGrey;
     try {
