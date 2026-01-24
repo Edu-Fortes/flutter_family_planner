@@ -3,10 +3,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
 import '../../members/data/member_repository.dart';
 import '../data/calendar_repository.dart';
+import 'recurrence_options_sheet.dart'; // <--- Import this
 
 class AddEventDialog extends ConsumerStatefulWidget {
-  final FamilyEvent?
-  eventToEdit; // If null, we are adding new. If set, we are editing.
+  final FamilyEvent? eventToEdit;
 
   const AddEventDialog({super.key, this.eventToEdit});
 
@@ -22,6 +22,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
   late DateTime _endDate;
   String? _selectedMemberId;
   bool _isAllDay = false;
+  String? _recurrenceRule; // <--- State for RRule
 
   @override
   void initState() {
@@ -29,18 +30,20 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     final editEvent = widget.eventToEdit;
 
     if (editEvent != null) {
-      // EDIT MODE: Pre-fill data
+      // EDIT MODE
       _titleController = TextEditingController(text: editEvent.title);
       _startDate = editEvent.startTime;
       _endDate = editEvent.endTime;
       _isAllDay = editEvent.isAllDay;
       _selectedMemberId = editEvent.assignedToMemberId;
+      _recurrenceRule = editEvent.recurrenceRule; // <--- Load existing rule
     } else {
-      // ADD MODE: Defaults
+      // ADD MODE
       _titleController = TextEditingController();
       final now = DateTime.now();
       _startDate = DateTime(now.year, now.month, now.day, now.hour + 1, 0);
       _endDate = _startDate.add(const Duration(hours: 1));
+      _recurrenceRule = null;
     }
   }
 
@@ -49,7 +52,6 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     final membersAsync = ref.watch(allMembersProvider);
     final isEditing = widget.eventToEdit != null;
 
-    // Define formats based on the toggle
     final dateFormat = DateFormat('dd MMM yyyy');
     final dateTimeFormat = DateFormat('dd MMM, HH:mm');
     final displayFormat = _isAllDay ? dateFormat : dateTimeFormat;
@@ -119,24 +121,46 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
                 onChanged: (val) => setState(() => _isAllDay = val),
                 contentPadding: EdgeInsets.zero,
               ),
+
+              // --- RECURRENCE OPTION ---
+              ListTile(
+                leading: const Icon(Icons.loop),
+                title: const Text('Repetir'),
+                subtitle: Text(
+                  (_recurrenceRule == null || _recurrenceRule!.isEmpty)
+                      ? 'Nunca'
+                      : 'Regra Personalizada', // You can parse this to "Weekly" etc later
+                  style: const TextStyle(fontSize: 12),
+                ),
+                onTap: () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true, // Need full screen for editor
+                    builder: (_) => RecurrenceOptionsSheet(
+                      startDate: _startDate,
+                      initialRule: _recurrenceRule,
+                      onRuleChanged: (rule) {
+                        setState(() => _recurrenceRule = rule);
+                      },
+                    ),
+                  );
+                },
+              ),
             ],
           ),
         ),
       ),
       actions: [
-        // DELETE BUTTON (Only in Edit Mode)
         if (isEditing)
           TextButton(
             style: TextButton.styleFrom(foregroundColor: Colors.red),
             onPressed: _delete,
             child: const Text('Excluir'),
           ),
-
         TextButton(
           onPressed: () => Navigator.pop(context),
           child: const Text('Cancelar'),
         ),
-
         ElevatedButton(
           onPressed: _save,
           child: Text(isEditing ? 'Atualizar' : 'Salvar'),
@@ -145,22 +169,17 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     );
   }
 
+  // ... _pickDate function remains the same ...
   Future<void> _pickDate(bool isStart) async {
-    // 1. Pick the Date
     final pickedDate = await showDatePicker(
       context: context,
       initialDate: isStart ? _startDate : _endDate,
       firstDate: DateTime(2020),
       lastDate: DateTime(2030),
     );
-
     if (pickedDate != null && mounted) {
-      // 2. If it is All Day, we STOP here (no time picker)
       if (_isAllDay) {
         setState(() {
-          // Keep the date, but set time to 00:00 (Start) or 23:59 (End) conceptually,
-          // though for AllDay events the time component is largely ignored by the calendar.
-          // We just preserve the current hour/min to avoid null errors, or set to default.
           final newDate = DateTime(
             pickedDate.year,
             pickedDate.month,
@@ -168,7 +187,6 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
             isStart ? _startDate.hour : _endDate.hour,
             isStart ? _startDate.minute : _endDate.minute,
           );
-
           if (isStart) {
             _startDate = newDate;
           } else {
@@ -176,12 +194,10 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
           }
         });
       } else {
-        // 3. If NOT All Day, we proceed to Pick the Time
         final pickedTime = await showTimePicker(
           context: context,
           initialTime: TimeOfDay.fromDateTime(isStart ? _startDate : _endDate),
         );
-
         if (pickedTime != null && mounted) {
           setState(() {
             final newDate = DateTime(
@@ -208,12 +224,14 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
     final repo = ref.read(calendarRepositoryProvider);
 
     final event = FamilyEvent(
-      id: widget.eventToEdit?.id ?? '', // Use existing ID if editing
+      id: widget.eventToEdit?.id ?? '',
       title: _titleController.text,
       startTime: _startDate,
       endTime: _endDate,
       assignedToMemberId: _selectedMemberId,
       isAllDay: _isAllDay,
+      recurrenceRule: _recurrenceRule, // <--- SAVE RULE
+      exceptionDates: widget.eventToEdit?.exceptionDates, // Preserve exceptions
     );
 
     if (widget.eventToEdit != null) {
@@ -226,6 +244,7 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
   }
 
   Future<void> _delete() async {
+    // ... delete confirmation code (remains same) ...
     final confirm = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -243,7 +262,6 @@ class _AddEventDialogState extends ConsumerState<AddEventDialog> {
         ],
       ),
     );
-
     if (confirm == true) {
       await ref
           .read(calendarRepositoryProvider)
